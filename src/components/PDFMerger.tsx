@@ -22,8 +22,6 @@ export default function PDFMerger() {
     }));
 
     setFiles((prev) => [...prev, ...newFiles]);
-    
-    // Reset input so the same file can be selected again if needed
     e.target.value = "";
   };
 
@@ -72,7 +70,7 @@ export default function PDFMerger() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-10 border-2 border-dashed border-indigo-100 rounded-[2.5rem] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] mt-8 transition-all">
+    <div className="max-w-xl mx-auto p-10 border-4 border-double border-[#355872]/20 rounded-[3rem] bg-white shadow-xl shadow-[#355872]/5 mt-8 transition-all">
       {files.length === 0 ? (
         <div className="group text-center py-12 relative">
           <input
@@ -82,70 +80,70 @@ export default function PDFMerger() {
             onChange={handleFileChange}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
           />
-          <div className="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-            <FileStack className="w-10 h-10 text-indigo-500" />
+          <div className="w-24 h-24 bg-[#9CD5FF]/20 rounded-[2rem] flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+            <FileStack className="w-12 h-12 text-[#355872]" />
           </div>
-          <p className="font-bold text-xl text-slate-800">
-            Upload PDFs to Merge
+          <p className="font-black text-2xl text-[#355872]">
+            Merge Documents
           </p>
-          <p className="text-sm text-slate-400 mt-2 font-medium">
-            Select multiple files to combine them.
+          <p className="text-sm text-[#7AAACE] mt-2 font-bold uppercase tracking-widest">
+            Select files to combine
           </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-8">
           <div className="text-center">
-             <h2 className="text-xl font-bold text-slate-800">Merge List</h2>
-             <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">
-               {files.length} Files Selected
+             <h2 className="text-xl font-black text-[#355872]">Merge List</h2>
+             <p className="text-[10px] text-[#7AAACE] font-black uppercase tracking-[0.3em] mt-2">
+               {files.length} Documents
              </p>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             {files.map((item, index) => {
               const isDuplicateName = files.filter(f => f.file.name === item.file.name).length > 1;
               
               return (
                 <div
                   key={item.id}
-                  className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100 group transition-all hover:bg-white hover:shadow-lg hover:shadow-indigo-100/20"
+                  className="flex items-center gap-4 bg-[#F7F8F0]/50 p-5 rounded-2xl border-2 border-[#355872]/5 group transition-all hover:bg-white hover:shadow-xl hover:shadow-[#355872]/5"
                 >
                   <div className="flex flex-col gap-1">
                     <button
                       onClick={() => moveFile(index, "up")}
                       disabled={index === 0}
-                      className="text-slate-300 hover:text-indigo-500 disabled:opacity-0 transition-colors"
+                      className="text-[#7AAACE]/40 hover:text-[#355872] disabled:opacity-0 transition-colors"
                     >
-                      <MoveUp className="w-4 h-4" />
+                      <MoveUp className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => moveFile(index, "down")}
                       disabled={index === files.length - 1}
-                      className="text-slate-300 hover:text-indigo-500 disabled:opacity-0 transition-colors"
+                      className="text-[#7AAACE]/40 hover:text-[#355872] disabled:opacity-0 transition-colors"
                     >
-                      <MoveDown className="w-4 h-4" />
+                      <MoveDown className="w-5 h-5" />
                     </button>
                   </div>
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="font-bold text-slate-700 truncate text-sm">
+                      <p className="font-bold text-[#355872] truncate text-sm">
                         {item.file.name}
                       </p>
                       {isDuplicateName && (
-                        <span className="text-[8px] font-black bg-slate-200 text-slate-500 px-1.5 py-0.5 rounded uppercase tracking-tighter">
+                        <span className="text-[8px] font-black bg-[#9CD5FF]/30 text-[#355872] px-2 py-0.5 rounded uppercase tracking-tighter">
                           Same Name
                         </span>
                       )}
                     </div>
-                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
+                    <p className="text-[10px] text-[#7AAACE] font-black uppercase tracking-widest mt-0.5">
                       Part {index + 1}
                     </p>
                   </div>
 
                   <button
                     onClick={() => removeFile(item.id)}
-                    className="p-2 text-slate-300 hover:text-rose-500 transition-colors"
+                    className="p-2 text-[#7AAACE]/40 hover:text-red-500 transition-colors"
                   >
                     <Trash2 className="w-5 h-5" />
                   </button>
@@ -161,9 +159,9 @@ export default function PDFMerger() {
                 onChange={handleFileChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
-              <div className="border-2 border-dashed border-slate-200 rounded-2xl py-6 flex items-center justify-center gap-3 text-slate-400 group-hover:border-indigo-300 group-hover:text-indigo-500 transition-all cursor-pointer">
-                <Plus className="w-5 h-5" />
-                <span className="font-bold text-sm">Add More Files</span>
+              <div className="border-4 border-dashed border-[#355872]/10 rounded-2xl py-8 flex items-center justify-center gap-3 text-[#7AAACE] group-hover:border-[#9CD5FF] group-hover:text-[#355872] group-hover:bg-[#9CD5FF]/5 transition-all cursor-pointer">
+                <Plus className="w-6 h-6" />
+                <span className="font-black text-sm uppercase tracking-widest">Add More Files</span>
               </div>
             </div>
           </div>
@@ -171,23 +169,23 @@ export default function PDFMerger() {
           <button
             onClick={handleMerge}
             disabled={files.length < 2 || isProcessing}
-            className="w-full bg-slate-950 flex items-center justify-center gap-3 text-white px-8 py-5 rounded-[1.5rem] font-bold text-lg hover:bg-indigo-600 active:scale-[0.98] transition-all disabled:opacity-20 disabled:grayscale shadow-2xl shadow-slate-200 disabled:shadow-none"
+            className="w-full bg-[#355872] flex items-center justify-center gap-4 text-[#F7F8F0] px-8 py-6 rounded-[2rem] font-black text-xl hover:bg-[#7AAACE] active:scale-[0.97] transition-all disabled:opacity-20 disabled:grayscale shadow-2xl shadow-[#355872]/20"
           >
             {isProcessing ? (
               <span className="flex items-center gap-2">
-                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span className="w-6 h-6 border-4 border-[#F7F8F0]/30 border-t-[#F7F8F0] rounded-full animate-spin" />
                 Merging...
               </span>
             ) : (
               <>
-                <Download className="w-6 h-6" /> Merge & Download
+                <Download className="w-7 h-7" /> Merge & Download
               </>
             )}
           </button>
           
           <button 
             onClick={() => setFiles([])}
-            className="text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase tracking-widest mx-auto"
+            className="text-xs font-black text-[#7AAACE] hover:text-red-500 transition-colors uppercase tracking-[0.3em] mx-auto"
           >
             Clear All
           </button>
