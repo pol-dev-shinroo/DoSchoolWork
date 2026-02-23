@@ -1,10 +1,10 @@
-// ✅ REPLACE IT WITH THIS
 import type { Metadata } from "next";
 import ImageRotater from "@/components/ImageRotater";
 
 export const metadata: Metadata = {
   title: "Free Image Rotator | DoSchoolWork",
-  description: "Rotate images online for free. No upload required.",
+  description:
+    "Rotate images online for free. Fix upside-down scans instantly. No server upload required.",
 };
 
 export default function RotatePage() {
@@ -18,6 +18,8 @@ export default function RotatePage() {
           Fix upside-down scans instantly.
         </p>
       </div>
+
+      {/* Load the Client Component */}
       <ImageRotater />
     </div>
   );

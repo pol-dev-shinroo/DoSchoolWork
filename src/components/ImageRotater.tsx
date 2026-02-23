@@ -14,23 +14,29 @@ export default function ImageRotater() {
   const [rotation, setRotation] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // We use this hidden canvas to actually process the image file
+  // 1. The Hidden Canvas: This is our "digital darkroom"
+  // We don't show this to the user, but we use it to process the file.
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Create a temporary URL for the uploaded file so we can show a preview
       const url = URL.createObjectURL(file);
       setImage(url);
       setFileName(file.name);
-      setRotation(0);
+      setRotation(0); // Reset rotation to 0 for new images
     }
   };
 
+  // 2. The Visual Rotation (CSS Only)
+  // This just updates the preview on the screen instantly.
   const handleRotate = () => {
     setRotation((prev) => (prev + 90) % 360);
   };
 
+  // 3. The Actual Rotation (Canvas Math)
+  // This runs when the user clicks "Download". It permanently burns the rotation into the file.
   const handleDownload = async () => {
     if (!image || !canvasRef.current) return;
     setIsProcessing(true);
@@ -40,8 +46,9 @@ export default function ImageRotater() {
     const imgElement = new Image();
     imgElement.src = image;
 
+    // Wait for the image to load into memory
     imgElement.onload = () => {
-      // 1. Swap width/height if rotated 90 or 270 degrees
+      // A. Swap Dimensions: If rotating 90 or 270, width becomes height.
       if (rotation % 180 !== 0) {
         canvas.width = imgElement.height;
         canvas.height = imgElement.width;
@@ -51,16 +58,20 @@ export default function ImageRotater() {
       }
 
       if (ctx) {
-        // 2. Move the rotation center to the middle of the canvas
+        // B. Move the "Pivot Point" to the center of the canvas
         ctx.translate(canvas.width / 2, canvas.height / 2);
+
+        // C. Rotate the canvas
         ctx.rotate((rotation * Math.PI) / 180);
+
+        // D. Draw the image (offset by half its size to center it)
         ctx.drawImage(
           imgElement,
           -imgElement.width / 2,
           -imgElement.height / 2,
         );
 
-        // 3. Export
+        // E. Save as File
         canvas.toBlob((blob) => {
           if (blob) {
             const link = document.createElement("a");
@@ -76,14 +87,15 @@ export default function ImageRotater() {
 
   return (
     <div className="max-w-xl mx-auto p-10 border-4 border-double border-[#355872]/20 rounded-[3rem] bg-white shadow-xl shadow-[#355872]/5 mt-8 transition-all">
-      {/* Hidden Canvas for processing */}
+      {/* Hidden Canvas Element */}
       <canvas ref={canvasRef} className="hidden" />
 
       {!image ? (
+        // UPLOAD STATE
         <div className="group text-center py-12 relative">
           <input
             type="file"
-            accept="image/*"
+            accept="image/png, image/jpeg, image/webp"
             onChange={handleFileChange}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
           />
@@ -96,6 +108,7 @@ export default function ImageRotater() {
           </p>
         </div>
       ) : (
+        // EDIT STATE
         <div className="flex flex-col gap-8 items-center">
           <div className="flex items-center gap-2 bg-[#F7F8F0] px-4 py-2 rounded-xl border border-[#355872]/10">
             <ImageIcon className="w-4 h-4 text-[#355872]" />
@@ -110,8 +123,9 @@ export default function ImageRotater() {
             </button>
           </div>
 
-          {/* Preview Area */}
+          {/* Preview Window */}
           <div className="relative w-64 h-64 flex items-center justify-center bg-[#F7F8F0]/50 rounded-2xl border-2 border-[#355872]/5 overflow-hidden">
+            {/* We use CSS transform here for instant preview speed */}
             <img
               src={image}
               alt="Preview"
@@ -134,7 +148,7 @@ export default function ImageRotater() {
               className="flex-[2] bg-[#355872] text-[#F7F8F0] px-6 py-4 rounded-2xl font-black hover:bg-[#7AAACE] transition-all flex items-center justify-center gap-2 shadow-xl shadow-[#355872]/20"
             >
               {isProcessing ? (
-                "Processing..."
+                <span>Processing...</span>
               ) : (
                 <>
                   <Download className="w-5 h-5" /> Download
