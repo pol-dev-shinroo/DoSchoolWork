@@ -1,64 +1,92 @@
-"use client";
-import { useState } from "react";
-import Header from "@/components/Header";
-import Sidebar from "@/components/Sidebar"; // Import the new Sidebar
-import PDFCropper from "@/components/PDFCropper";
-import PDFMerger from "@/components/PDFMerger";
-import { Scissors, FileStack } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
+import {
+  Scissors,
+  FileStack,
+  Image as ImageIcon,
+  Sparkles,
+} from "lucide-react";
 
-export default function Home() {
-  const [activeTab, setActiveTab] = useState<"crop" | "merge">("crop");
+export const metadata: Metadata = {
+  title: "DoSchoolWork | Free PDF & Image Tools for Students",
+  description:
+    "The ultimate 100% private, browser-based toolbox for your assignments. Crop PDFs, merge files, and rotate images for free.",
+};
 
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#F7F8F0]/30">
-      {" "}
-      {/* Added a subtle background color */}
-      <Header />
-      <Sidebar /> {/* Added the Sidebar */}
-      {/* Added pl-0 md:pl-24 to push content right when sidebar is visible */}
-      <main className="pt-32 pb-20 px-4 md:pl-24 transition-all duration-300">
-        <div className="max-w-4xl mx-auto">
-          <section className="text-center mb-10">
-            <h1 className="text-5xl font-black mb-6 tracking-tight text-[#355872]">
-              Do School Work.
-            </h1>
-            <p className="text-lg text-[#355872]/70 font-bold">
-              The ultimate toolbox for PDF assignments. <br /> 100% private,
-              browser-based processing.
-            </p>
-          </section>
+    <div className="w-full max-w-5xl mx-auto px-4">
+      {/* Hero Section */}
+      <section className="text-center mb-16 pt-8">
+        <h1 className="text-5xl md:text-6xl font-black mb-6 tracking-tight text-[#355872]">
+          Do School Work.
+        </h1>
+        <p className="text-lg md:text-xl text-[#355872]/70 font-bold max-w-2xl mx-auto">
+          The ultimate toolbox for your assignments.{" "}
+          <br className="hidden md:block" />
+          100% private, browser-based processing. Zero server uploads.
+        </p>
+      </section>
 
-          {/* Tool Toggle */}
-          <div className="flex justify-center mb-12">
-            <div className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-[#355872]/10 shadow-sm">
-              <button
-                onClick={() => setActiveTab("crop")}
-                className={`flex items-center gap-2 px-8 py-3 rounded-xl font-black text-sm transition-all ${
-                  activeTab === "crop"
-                    ? "bg-[#355872] text-[#F7F8F0] shadow-lg shadow-[#355872]/20 scale-105"
-                    : "text-[#355872]/50 hover:text-[#355872] hover:bg-[#F7F8F0]"
-                }`}
-              >
-                <Scissors className="w-4 h-4" /> CROP
-              </button>
-              <button
-                onClick={() => setActiveTab("merge")}
-                className={`flex items-center gap-2 px-8 py-3 rounded-xl font-black text-sm transition-all ${
-                  activeTab === "merge"
-                    ? "bg-[#355872] text-[#F7F8F0] shadow-lg shadow-[#355872]/20 scale-105"
-                    : "text-[#355872]/50 hover:text-[#355872] hover:bg-[#F7F8F0]"
-                }`}
-              >
-                <FileStack className="w-4 h-4" /> MERGE
-              </button>
-            </div>
+      {/* Feature Tiles Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {/* Tile 1: PDF Crop */}
+        <Link
+          href="/pdf/crop"
+          className="group bg-white border-2 border-[#355872]/10 rounded-[2rem] p-8 flex flex-col items-center text-center hover:border-[#9CD5FF] hover:shadow-xl hover:shadow-[#355872]/5 transition-all duration-300 hover:-translate-y-1"
+        >
+          <div className="w-20 h-20 bg-[#F7F8F0] group-hover:bg-[#355872] rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300">
+            <Scissors className="w-10 h-10 text-[#355872] group-hover:text-[#F7F8F0] transition-colors" />
           </div>
+          <h2 className="text-2xl font-black text-[#355872] mb-3">Crop PDF</h2>
+          <p className="text-sm font-bold text-[#7AAACE]">
+            Extract specific pages from your reading assignments instantly.
+          </p>
+        </Link>
 
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {activeTab === "crop" ? <PDFCropper /> : <PDFMerger />}
+        {/* Tile 2: PDF Merge */}
+        <Link
+          href="/pdf/merge"
+          className="group bg-white border-2 border-[#355872]/10 rounded-[2rem] p-8 flex flex-col items-center text-center hover:border-[#9CD5FF] hover:shadow-xl hover:shadow-[#355872]/5 transition-all duration-300 hover:-translate-y-1"
+        >
+          <div className="w-20 h-20 bg-[#F7F8F0] group-hover:bg-[#355872] rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300">
+            <FileStack className="w-10 h-10 text-[#355872] group-hover:text-[#F7F8F0] transition-colors" />
           </div>
+          <h2 className="text-2xl font-black text-[#355872] mb-3">Merge PDF</h2>
+          <p className="text-sm font-bold text-[#7AAACE]">
+            Combine multiple files into one seamless document for submission.
+          </p>
+        </Link>
+
+        {/* Tile 3: Image Rotate */}
+        <Link
+          href="/image/rotate"
+          className="group bg-white border-2 border-[#355872]/10 rounded-[2rem] p-8 flex flex-col items-center text-center hover:border-[#9CD5FF] hover:shadow-xl hover:shadow-[#355872]/5 transition-all duration-300 hover:-translate-y-1"
+        >
+          <div className="w-20 h-20 bg-[#F7F8F0] group-hover:bg-[#355872] rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300">
+            <ImageIcon className="w-10 h-10 text-[#355872] group-hover:text-[#F7F8F0] transition-colors" />
+          </div>
+          <h2 className="text-2xl font-black text-[#355872] mb-3">
+            Rotate Image
+          </h2>
+          <p className="text-sm font-bold text-[#7AAACE]">
+            Fix upside-down phone scans of your homework in one click.
+          </p>
+        </Link>
+
+        {/* Tile 4: Coming Soon */}
+        <div className="bg-[#F7F8F0]/50 border-2 border-dashed border-[#355872]/10 rounded-[2rem] p-8 flex flex-col items-center text-center opacity-60">
+          <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mb-6">
+            <Sparkles className="w-10 h-10 text-[#355872]/40" />
+          </div>
+          <h2 className="text-xl font-black text-[#355872]/60 mb-2">
+            More Tools Soon
+          </h2>
+          <p className="text-[10px] font-black uppercase tracking-widest text-[#7AAACE]">
+            Compress, Convert, Edit
+          </p>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
