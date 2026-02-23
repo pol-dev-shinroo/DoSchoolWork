@@ -5,8 +5,25 @@ import { UploadCloud, Scissors, Download } from "lucide-react";
 
 export default function PDFCropper() {
   const [file, setFile] = useState<File | null>(null);
+  const [totalPages, setTotalPages] = useState<number | null>(null);
   const [pages, setPages] = useState({ start: 1, end: 1 });
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      try {
+        const arrayBuffer = await selectedFile.arrayBuffer();
+        const pdfDoc = await PDFDocument.load(arrayBuffer);
+        const count = pdfDoc.getPageCount();
+        setTotalPages(count);
+        setPages({ start: 1, end: count });
+      } catch (err) {
+        console.error("Error loading PDF info:", err);
+      }
+    }
+  };
 
   const handleProcess = async () => {
     if (!file) return;
@@ -17,9 +34,15 @@ export default function PDFCropper() {
       const pdfDoc = await PDFDocument.load(arrayBuffer);
       const newPdf = await PDFDocument.create();
 
-      const totalPages = pdfDoc.getPageCount();
+      const totalPagesCount = pdfDoc.getPageCount();
       const start = Math.max(1, pages.start);
-      const end = Math.min(totalPages, pages.end);
+      const end = Math.min(totalPagesCount, pages.end);
+
+      if (start > end) {
+        alert("Start page cannot be greater than end page.");
+        setIsProcessing(false);
+        return;
+      }
 
       const pageIndices = Array.from(
         { length: end - start + 1 },
@@ -46,63 +69,94 @@ export default function PDFCropper() {
     }
   };
 
+  const isInvalid =
+    !totalPages ||
+    pages.start < 1 ||
+    pages.end > totalPages ||
+    pages.start > pages.end;
+
   return (
-    <div className="max-w-xl mx-auto p-8 border-2 border-dashed border-blue-200 rounded-3xl bg-white shadow-sm mt-8">
+    <div className="max-w-xl mx-auto p-10 border-2 border-dashed border-indigo-100 rounded-[2.5rem] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] mt-8 transition-all">
       {!file ? (
-        <div className="text-center py-10 relative">
+        <div className="group text-center py-12 relative">
           <input
             type="file"
             accept="application/pdf"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            onChange={handleFileChange}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
           />
-          <UploadCloud className="w-12 h-12 text-blue-400 mx-auto mb-4" />
-          <p className="font-bold text-slate-700">
+          <div className="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+            <UploadCloud className="w-10 h-10 text-indigo-500" />
+          </div>
+          <p className="font-bold text-xl text-slate-800">
             Click or drag a PDF to upload
           </p>
-          <p className="text-sm text-slate-400 mt-2">
+          <p className="text-sm text-slate-400 mt-2 font-medium">
             Maximum privacy. Processed on your device.
           </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-6 items-center py-4">
-          <div className="text-center">
-            <p className="font-bold text-slate-800 flex items-center gap-2">
-              <Scissors className="w-5 h-5 text-blue-500" /> {file.name}
-            </p>
-            <button
-              onClick={() => setFile(null)}
-              className="text-xs text-red-500 hover:underline mt-2"
-            >
-              Remove file
-            </button>
+        <div className="flex flex-col gap-8 items-center py-2">
+          <div className="text-center w-full">
+            <div className="inline-flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100">
+              <Scissors className="w-5 h-5 text-indigo-500" />
+              <p className="font-bold text-slate-700 truncate max-w-[200px]">
+                {file.name}
+              </p>
+              {totalPages && (
+                <span className="text-[10px] font-black bg-indigo-600 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                  {totalPages} pages
+                </span>
+              )}
+            </div>
+            <div className="mt-3">
+              <button
+                onClick={() => {
+                  setFile(null);
+                  setTotalPages(null);
+                }}
+                className="text-xs font-bold text-rose-500 hover:text-rose-600 transition-colors uppercase tracking-widest"
+              >
+                Change File
+              </button>
+            </div>
           </div>
 
-          <div className="flex gap-4 items-center bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <div className="flex flex-col">
-              <label className="text-xs font-bold text-slate-500 mb-1">
-                START PAGE
+          <div className="flex gap-6 items-center w-full justify-center">
+            <div className="flex flex-col items-center">
+              <label className="text-[11px] font-black text-slate-400 mb-2 uppercase tracking-[0.2em]">
+                Start
               </label>
               <input
                 type="number"
                 min="1"
-                value={pages.start}
-                className="border p-2 w-24 rounded-lg text-center font-bold text-slate-700"
+                value={pages.start || ""}
+                className={`border-2 bg-slate-50/50 p-4 w-28 rounded-2xl text-center text-lg font-black text-slate-800 outline-none transition-all ${
+                  pages.start < 1 || pages.start > (totalPages || 0)
+                    ? "border-rose-200 bg-rose-50 text-rose-600"
+                    : "border-transparent focus:border-indigo-400 focus:bg-white focus:shadow-xl focus:shadow-indigo-100/50"
+                }`}
                 onChange={(e) =>
                   setPages({ ...pages, start: Number(e.target.value) })
                 }
               />
             </div>
-            <span className="text-slate-300 font-bold mt-4">TO</span>
-            <div className="flex flex-col">
-              <label className="text-xs font-bold text-slate-500 mb-1">
-                END PAGE
+
+            <div className="h-0.5 w-6 bg-slate-200 mt-6 rounded-full" />
+
+            <div className="flex flex-col items-center">
+              <label className="text-[11px] font-black text-slate-400 mb-2 uppercase tracking-[0.2em]">
+                End
               </label>
               <input
                 type="number"
                 min="1"
-                value={pages.end}
-                className="border p-2 w-24 rounded-lg text-center font-bold text-slate-700"
+                value={pages.end || ""}
+                className={`border-2 bg-slate-50/50 p-4 w-28 rounded-2xl text-center text-lg font-black text-slate-800 outline-none transition-all ${
+                  pages.end > (totalPages || 0) || pages.end < pages.start
+                    ? "border-rose-200 bg-rose-50 text-rose-600"
+                    : "border-transparent focus:border-indigo-400 focus:bg-white focus:shadow-xl focus:shadow-indigo-100/50"
+                }`}
                 onChange={(e) =>
                   setPages({ ...pages, end: Number(e.target.value) })
                 }
@@ -110,16 +164,25 @@ export default function PDFCropper() {
             </div>
           </div>
 
+          {isInvalid && (
+            <p className="text-xs font-bold text-rose-500 animate-pulse">
+              Invalid range for this {totalPages} page document
+            </p>
+          )}
+
           <button
             onClick={handleProcess}
-            disabled={isProcessing}
-            className="bg-blue-600 flex items-center gap-2 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition-all disabled:opacity-50"
+            disabled={isProcessing || isInvalid}
+            className="w-full bg-slate-950 flex items-center justify-center gap-3 text-white px-8 py-5 rounded-[1.5rem] font-bold text-lg hover:bg-indigo-600 active:scale-[0.98] transition-all disabled:opacity-20 disabled:grayscale shadow-2xl shadow-slate-200 disabled:shadow-none"
           >
             {isProcessing ? (
-              "Processing..."
+              <span className="flex items-center gap-2">
+                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Processing...
+              </span>
             ) : (
               <>
-                <Download className="w-5 h-5" /> Crop & Download
+                <Download className="w-6 h-6" /> Export PDF
               </>
             )}
           </button>
