@@ -5,6 +5,8 @@ import {
   FileStack,
   Image as ImageIcon,
   Sparkles,
+  Crop,
+  Maximize,
 } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -74,7 +76,41 @@ export default function HomePage() {
           </p>
         </Link>
 
-        {/* Tile 4: Coming Soon */}
+        {/* Tile 4: Image Crop */}
+        <Link
+          href="/image/crop"
+          className="group bg-white border-2 border-[#355872]/10 rounded-[2rem] p-8 flex flex-col items-center text-center hover:border-[#9CD5FF] hover:shadow-xl hover:shadow-[#355872]/5 transition-all duration-300 hover:-translate-y-1"
+        >
+          <div className="w-20 h-20 bg-[#F7F8F0] group-hover:bg-[#355872] rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300">
+            <Crop className="w-10 h-10 text-[#355872] group-hover:text-[#F7F8F0] transition-colors" />
+          </div>
+          <h2 className="text-2xl font-black text-[#355872] mb-3">
+            Crop Image
+          </h2>
+          <p className="text-sm font-bold text-[#7AAACE]">
+            Trim unwanted borders or distracting backgrounds from your
+            assignment photos.
+          </p>
+        </Link>
+
+        {/* Tile 5: Image Resize */}
+        <Link
+          href="/image/resize"
+          className="group bg-white border-2 border-[#355872]/10 rounded-[2rem] p-8 flex flex-col items-center text-center hover:border-[#9CD5FF] hover:shadow-xl hover:shadow-[#355872]/5 transition-all duration-300 hover:-translate-y-1"
+        >
+          <div className="w-20 h-20 bg-[#F7F8F0] group-hover:bg-[#355872] rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300">
+            <Maximize className="w-10 h-10 text-[#355872] group-hover:text-[#F7F8F0] transition-colors" />
+          </div>
+          <h2 className="text-2xl font-black text-[#355872] mb-3">
+            Resize Image
+          </h2>
+          <p className="text-sm font-bold text-[#7AAACE]">
+            Adjust image dimensions perfectly to meet strict submission portal
+            limits.
+          </p>
+        </Link>
+
+        {/* Tile 6: Coming Soon */}
         <div className="bg-[#F7F8F0]/50 border-2 border-dashed border-[#355872]/10 rounded-[2rem] p-8 flex flex-col items-center text-center opacity-60">
           <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mb-6">
             <Sparkles className="w-10 h-10 text-[#355872]/40" />

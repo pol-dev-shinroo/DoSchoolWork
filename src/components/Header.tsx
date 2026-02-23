@@ -1,19 +1,23 @@
 "use client";
 import { Globe } from "lucide-react";
+import Link from "next/link";
 
 export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 bg-[#F7F8F0]/80 backdrop-blur-md z-50 border-b border-[#355872]/10">
       <div className="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex items-center gap-2">
+        {/* Logo - Now a clickable Link */}
+        <Link
+          href="/"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+        >
           <div className="w-10 h-10 bg-[#355872] rounded-xl flex items-center justify-center">
             <span className="text-[#F7F8F0] font-black text-xl italic">D</span>
           </div>
           <h1 className="text-2xl font-black text-[#355872] tracking-tighter">
             doschoolwork
           </h1>
-        </div>
+        </Link>
 
         {/* Right Side: Auth & Language */}
         <div className="flex items-center gap-4">
