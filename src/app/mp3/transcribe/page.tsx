@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import TranscribeClient from "./TranscribeClient";
 
 export const metadata: Metadata = {
-  title: "MP3 to PDF | DoSchoolWork",
+  title: "Free MP3 to PDF Transcriber | DoSchoolWork",
   description:
-    "Transcribe audio lectures and voice notes into readable PDFs for free.",
+    "Transcribe lectures and audio files locally in your browser with AI.",
 };
 
 export default function TranscribePage() {

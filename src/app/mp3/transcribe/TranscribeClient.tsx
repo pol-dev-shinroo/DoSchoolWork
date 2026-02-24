@@ -4,65 +4,94 @@ import React, { useState, useRef, useEffect } from "react";
 import PageShell from "@/components/layouts/PageShell";
 import Mp3Nav from "@/components/nav/Mp3Nav";
 import { useLanguage } from "@/context/LanguageContext";
-import {
-  UploadCloud,
-  FileAudio,
-  Loader2,
-  Download,
-  Sparkles,
-  Check,
-  RefreshCw,
-  AlertCircle,
-} from "lucide-react";
 import jsPDF from "jspdf";
+import { Sparkles } from "lucide-react";
+
+import TranscribeUploadZone from "@/components/ui/TranscribeUploadZone";
+import TranscribeTerminal, {
+  TerminalLog,
+} from "@/components/ui/TranscribeTerminal";
+import TranscribeResult from "@/components/ui/TranscribeResult";
 
 export default function TranscribeClient() {
   const { t, locale } = useLanguage();
 
   const [file, setFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [progressLabel, setProgressLabel] = useState<string>("");
-  const [progressPercent, setProgressPercent] = useState<number>(0);
   const [resultText, setResultText] = useState("");
-  const [status, setStatus] = useState<
-    "idle" | "loading_model" | "decoding" | "transcribing" | "done" | "error"
-  >("idle");
+
+  // Terminal State
+  const [logs, setLogs] = useState<TerminalLog[]>([]);
+  const [liveText, setLiveText] = useState("");
 
   const worker = useRef<Worker | null>(null);
 
+  // Helper to add or update terminal logs
+  const appendLog = (
+    message: string,
+    status: TerminalLog["status"],
+    progress?: number,
+  ) => {
+    setLogs((prev) => {
+      if (progress !== undefined && prev.length > 0) {
+        const last = prev[prev.length - 1];
+        if (last.message === message && last.status === "pending") {
+          const updated = [...prev];
+          updated[updated.length - 1] = { ...last, progress };
+          return updated;
+        }
+      }
+      return [
+        ...prev,
+        {
+          id: Math.random().toString(36).substring(7),
+          message,
+          status,
+          progress,
+        },
+      ];
+    });
+  };
+
+  const completeLastLog = () => {
+    setLogs((prev) => {
+      if (prev.length === 0) return prev;
+      const updated = [...prev];
+      updated[updated.length - 1].status = "success";
+      return updated;
+    });
+  };
+
   useEffect(() => {
     if (!worker.current) {
-      console.log("[Client] Initializing Worker...");
       worker.current = new Worker("/worker.js", { type: "module" });
     }
 
     const onMessage = (e: MessageEvent) => {
-      // DEBUG LOG
-      console.log("[Client] Message from Worker:", e.data);
-
       const { status: msgStatus, progress: loadProgress, text } = e.data;
 
       if (msgStatus === "initiate") {
-        setStatus("loading_model");
-        setProgressLabel("Initializing AI Brain...");
+        completeLastLog();
+        appendLog("Downloading AI Engine (Whisper)...", "pending", 0);
       } else if (msgStatus === "progress") {
-        const pct = Math.round(loadProgress || 0);
-        setProgressPercent(pct);
-        setProgressLabel(`Downloading Model: ${pct}%`);
+        appendLog(
+          "Downloading AI Engine (Whisper)...",
+          "pending",
+          Math.round(loadProgress || 0),
+        );
+      } else if (msgStatus === "model_ready") {
+        completeLastLog();
+        appendLog("Analyzing and transcribing audio segments...", "pending");
       } else if (msgStatus === "update") {
-        setStatus("transcribing");
-        setResultText(text);
-        setProgressLabel("Transcribing...");
+        setLiveText(text); // Stream the actual words to the terminal
       } else if (msgStatus === "complete") {
+        completeLastLog();
+        setLiveText("");
         setResultText(text);
-        setStatus("done");
         setIsProcessing(false);
-        setProgressPercent(100);
       } else if (msgStatus === "error") {
-        console.error("[Client] Received Error from Worker:", text);
-        setStatus("error");
+        appendLog(`Fatal Error: ${text}`, "error");
         setIsProcessing(false);
-        alert(text);
       }
     };
 
@@ -72,81 +101,62 @@ export default function TranscribeClient() {
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      console.log(
-        `[Client] File selected: ${selectedFile.name} (${selectedFile.size} bytes)`,
-      );
-      setFile(selectedFile);
+      setFile(e.target.files[0]);
       setResultText("");
-      setStatus("idle");
-      setProgressPercent(0);
+      setLogs([]);
+      setLiveText("");
     }
   };
 
-  // --- AUDIO DECODING WITH LOGGING ---
   const decodeAudio = async (audioFile: File): Promise<Float32Array> => {
-    console.log("[Client] Starting Audio Decoding...");
     const arrayBuffer = await audioFile.arrayBuffer();
-    console.log(
-      `[Client] File loaded into ArrayBuffer. Size: ${arrayBuffer.byteLength}`,
-    );
-
-    const audioContext = new AudioContext({ sampleRate: 16000 });
-    console.log("[Client] AudioContext created. Decoding data...");
-
+    const audioContext = new window.AudioContext({ sampleRate: 16000 });
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-    console.log(
-      `[Client] Audio Decoded. Channels: ${audioBuffer.numberOfChannels}, Duration: ${audioBuffer.duration}s`,
-    );
-
-    const audioData = audioBuffer.getChannelData(0);
-    console.log(`[Client] Raw Float32Array ready. Length: ${audioData.length}`);
-    return audioData;
+    return audioBuffer.getChannelData(0);
   };
 
   const startTranscription = async () => {
     if (!file || !worker.current) return;
     setIsProcessing(true);
+    setLogs([]); // Clear terminal on start
+    setLiveText("");
 
     try {
-      setStatus("decoding");
-      setProgressLabel("Decoding Audio...");
-
+      appendLog("Decoding local audio file (16kHz)...", "pending");
       const audioData = await decodeAudio(file);
+      completeLastLog();
 
-      setStatus("transcribing");
-      setProgressLabel("Sending to AI...");
-      console.log("[Client] Posting message to Worker...");
-
-      // Send to worker
+      appendLog("Waking up Local AI Engine...", "pending");
       worker.current.postMessage({ audio: audioData });
-      console.log("[Client] Message posted!");
     } catch (error) {
-      console.error("[Client] Main Thread Error:", error);
+      appendLog("Failed to read audio format.", "error");
       setIsProcessing(false);
-      setStatus("error");
-      alert("Failed to decode audio. Check console for details.");
     }
   };
 
   const resetTool = () => {
     setFile(null);
     setResultText("");
-    setStatus("idle");
+    setLogs([]);
+    setLiveText("");
     setIsProcessing(false);
-    setProgressPercent(0);
   };
 
   const downloadPDF = () => {
     const doc = new jsPDF();
     const margin = 20;
     const pageWidth = doc.internal.pageSize.getWidth();
-
     doc.setFontSize(22);
     doc.setTextColor(53, 88, 114);
     doc.text("Audio Transcript", margin, 30);
+    doc.setFontSize(10);
+    doc.setTextColor(122, 170, 206);
+    doc.text(`File: ${file?.name}`, margin, 40);
+    doc.setDrawColor(53, 88, 114, 0.1);
+    doc.line(margin, 50, pageWidth - margin, 50);
     doc.setFontSize(11);
     doc.setTextColor(0, 0, 0);
+
     const splitText = doc.splitTextToSize(resultText, pageWidth - margin * 2);
     doc.text(splitText, margin, 65);
     doc.save(`${file?.name.split(".")[0]}_transcript.pdf`);
@@ -159,85 +169,32 @@ export default function TranscribeClient() {
       navToggle={<Mp3Nav />}
     >
       <div className="flex flex-col gap-6 w-full max-w-2xl mx-auto">
-        <div
-          className={`relative bg-white rounded-[2rem] border-2 transition-all p-12 flex flex-col items-center justify-center text-center shadow-sm ${isProcessing ? "border-[#355872]/20 opacity-50" : "border-[#355872]/10 hover:border-[#355872]/30"}`}
-        >
-          <input
-            type="file"
-            accept="audio/*"
-            onChange={onFileChange}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-            disabled={isProcessing}
-          />
-          {file ? (
-            <>
-              <div className="w-20 h-20 bg-[#355872]/5 rounded-full flex items-center justify-center mb-6">
-                <FileAudio className="w-10 h-10 text-[#355872]" />
-              </div>
-              <h3 className="text-xl font-black text-[#355872] mb-1">
-                {file.name}
-              </h3>
-              <p className="text-sm font-bold text-[#355872]/40">
-                {(file.size / (1024 * 1024)).toFixed(2)} MB
-              </p>
-            </>
-          ) : (
-            <>
-              <div className="w-20 h-20 bg-[#F7F8F0] rounded-full flex items-center justify-center mb-6">
-                <UploadCloud className="w-10 h-10 text-[#355872]/40" />
-              </div>
-              <h3 className="text-xl font-black text-[#355872] mb-2">
-                {t.mp3ToPdf.workspaceTitle}
-              </h3>
-              <p className="text-sm font-bold text-[#355872]/50 max-w-sm">
-                {t.mp3ToPdf.workspaceDesc}
-              </p>
-            </>
-          )}
-        </div>
+        <TranscribeUploadZone
+          file={file}
+          isProcessing={isProcessing}
+          onFileChange={onFileChange}
+          t={t}
+        />
 
-        {isProcessing && (
-          <div className="bg-white rounded-3xl p-8 border-2 border-[#355872]/10 flex flex-col gap-4 shadow-xl">
-            <div className="flex items-center gap-4">
-              <Loader2 className="w-6 h-6 text-[#355872] animate-spin" />
-              <span className="text-sm font-black text-[#355872]">
-                {progressLabel}
-              </span>
-            </div>
-            <div className="h-4 w-full bg-[#F7F8F0] rounded-full overflow-hidden border border-[#355872]/5 relative">
-              <div
-                className="h-full bg-[#355872] transition-all duration-300 rounded-full"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-          </div>
+        {file && !isProcessing && !resultText && (
+          <button
+            onClick={startTranscription}
+            className="bg-[#355872] text-white w-full py-5 rounded-2xl font-black text-xl hover:bg-[#355872]/90 hover:scale-[1.01] active:scale-[0.99] transition-all shadow-xl shadow-[#355872]/10 flex items-center justify-center gap-3 animate-in slide-in-from-top-4"
+          >
+            <Sparkles className="w-6 h-6" />
+            {locale === "en" ? "Start Transcription" : "변환 시작"}
+          </button>
         )}
 
+        {isProcessing && <TranscribeTerminal logs={logs} liveText={liveText} />}
+
         {resultText && (
-          <div className="bg-white rounded-[2.5rem] border-2 border-[#355872]/10 p-10 shadow-2xl">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-black text-[#355872]">
-                Transcript Ready
-              </h3>
-              <div className="flex gap-2">
-                <button
-                  onClick={resetTool}
-                  className="p-3 text-[#355872]/40 hover:text-[#355872] hover:bg-[#F7F8F0] rounded-xl"
-                >
-                  <RefreshCw className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={downloadPDF}
-                  className="bg-emerald-600 text-white px-6 py-3 rounded-xl text-sm font-black flex items-center gap-2"
-                >
-                  <Download className="w-4 h-4" /> Save PDF
-                </button>
-              </div>
-            </div>
-            <div className="p-6 bg-[#F7F8F0]/50 rounded-[1.5rem] border border-[#355872]/5 max-h-[400px] overflow-y-auto text-sm text-[#355872]/80 leading-relaxed font-medium">
-              {resultText}
-            </div>
-          </div>
+          <TranscribeResult
+            resultText={resultText}
+            onReset={resetTool}
+            onDownload={downloadPDF}
+            locale={locale}
+          />
         )}
       </div>
     </PageShell>
