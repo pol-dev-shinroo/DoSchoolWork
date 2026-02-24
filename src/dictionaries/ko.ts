@@ -53,4 +53,12 @@ export const ko: Dictionary = {
     title: "PDF 자르기.",
     description: "과제에서 특정 페이지를 추출하거나 여백을 즉시 잘라내세요.",
   },
+  // Add this right under your `common` or `sidebar` objects
+  home: {
+    heroTitle: "학교 과제를 쉽게.",
+    heroSubtitle1: "과제를 위한 궁극의 툴박스.",
+    heroSubtitle2: "100% 개인정보 보호, 브라우저 기반 처리. 서버 업로드 제로.",
+    comingSoonTitle: "더 많은 도구 준비중",
+    comingSoonDesc: "압축, 보호, 편집",
+  },
 };

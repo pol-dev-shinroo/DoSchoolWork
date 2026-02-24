@@ -54,6 +54,14 @@ export const en = {
     description:
       "Extract specific pages or cut down margins from your assignments instantly.",
   },
+  home: {
+    heroTitle: "Do School Work.",
+    heroSubtitle1: "The ultimate toolbox for your assignments.",
+    heroSubtitle2:
+      "100% private, browser-based processing. Zero server uploads.",
+    comingSoonTitle: "More Tools Soon",
+    comingSoonDesc: "Compress, Protect, Edit",
+  },
 };
 
 export type Dictionary = typeof en;
