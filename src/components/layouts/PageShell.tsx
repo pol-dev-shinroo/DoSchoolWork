@@ -3,7 +3,7 @@ import BackToToolbox from "../ui/BackToToolbox";
 
 interface PageShellProps {
   children: React.ReactNode;
-  navToggle: React.ReactNode; // This allows us to pass the specific 3-way or 4-way toggle
+  navToggle: React.ReactNode;
   title: string;
   description: string;
 }
@@ -27,10 +27,8 @@ export default function PageShell({
         </p>
       </div>
 
-      {/* The Navigation Toggles go here */}
       <div className="flex justify-center mb-12">{navToggle}</div>
 
-      {/* The Actual Tool (OCR, Merger, etc.) */}
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto pb-20">
         {children}
       </div>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext"; // 1. Import the hook
 import {
   FileText,
   Image as ImageIcon,
@@ -11,24 +12,25 @@ import {
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { t } = useLanguage(); // 2. Initialize the translation object
 
-  // 1. Configuration: Default entry points for each category
+  // 3. Configuration using dictionary values
   const navItems = [
     {
-      label: "PDF",
-      href: "/pdf/crop", // Default if coming from outside
+      label: t.sidebar.pdf,
+      href: "/pdf/crop",
       pattern: "/pdf",
       icon: FileText,
     },
     {
-      label: "IMG",
-      href: "/image/rotate", // Default if coming from outside
+      label: t.sidebar.img,
+      href: "/image/rotate",
       pattern: "/image",
       icon: ImageIcon,
     },
     {
-      label: "Convert",
-      href: "/convert/pdf-to-word", // Default if coming from outside
+      label: t.sidebar.convert,
+      href: "/convert/pdf-to-word",
       pattern: "/convert",
       icon: ArrowRightLeft,
     },
@@ -37,13 +39,8 @@ export default function Sidebar() {
   return (
     <aside className="fixed left-0 top-20 bottom-0 w-24 bg-white/50 backdrop-blur-sm border-r border-[#355872]/10 flex flex-col items-center py-10 gap-8 z-40 hidden md:flex">
       {navItems.map((item) => {
-        // Check if user is currently inside this category
         const isInCategory = pathname.startsWith(item.pattern);
         const Icon = item.icon;
-
-        // STICKY LOGIC:
-        // If we are already in the category, the link keeps us where we are.
-        // If we are coming from another section, it takes us to the default.
         const finalHref = isInCategory ? pathname : item.href;
 
         return (
@@ -72,7 +69,7 @@ export default function Sidebar() {
               />
             </div>
 
-            {/* Label */}
+            {/* Label (Dynamic Translation) */}
             <span
               className={`text-[10px] font-black uppercase tracking-widest transition-colors ${
                 isInCategory ? "text-[#355872]" : "text-[#355872]/40"
@@ -84,13 +81,13 @@ export default function Sidebar() {
         );
       })}
 
-      {/* Coming Soon Section */}
+      {/* Coming Soon Section (Dynamic Translation) */}
       <div className="mt-auto mb-4 flex flex-col items-center gap-2 opacity-30 cursor-not-allowed">
         <div className="w-14 h-14 bg-[#F7F8F0] border border-[#355872]/5 rounded-2xl flex items-center justify-center">
           <Sparkles className="text-[#355872] w-6 h-6" />
         </div>
         <span className="text-[9px] font-black text-[#355872] uppercase tracking-widest text-center leading-tight">
-          SOON
+          {t.common.soon}
         </span>
       </div>
     </aside>
