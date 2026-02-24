@@ -1,56 +1,21 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import PageShell from "@/components/layouts/PageShell";
+import ImageNav from "@/components/nav/ImageNav";
 import ImageRotater from "@/components/ImageRotater";
-import { RotateCw, Crop, Maximize } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Free Image Rotator | DoSchoolWork",
-  description:
-    "Rotate images online for free. Fix upside-down scans instantly. No server upload required.",
+  description: "Fix upside-down scans instantly.",
 };
 
 export default function RotatePage() {
   return (
-    <div className="w-full">
-      <div className="text-center mb-10">
-        <h1 className="text-5xl font-black mb-6 tracking-tight text-[#355872]">
-          Rotate Image.
-        </h1>
-        <p className="text-lg text-[#355872]/70 font-bold">
-          Fix upside-down scans instantly.
-        </p>
-      </div>
-
-      {/* 3-Way Image Tool Toggle */}
-      <div className="flex justify-center mb-12">
-        <div className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-[#355872]/10 shadow-sm overflow-x-auto max-w-full">
-          {/* Active State */}
-          <Link
-            href="/image/rotate"
-            className="flex items-center gap-2 px-6 py-3 rounded-xl font-black text-sm transition-all bg-[#355872] text-[#F7F8F0] shadow-lg shadow-[#355872]/20 scale-105 whitespace-nowrap"
-          >
-            <RotateCw className="w-4 h-4" /> ROTATE
-          </Link>
-          {/* Inactive State */}
-          <Link
-            href="/image/crop"
-            className="flex items-center gap-2 px-6 py-3 rounded-xl font-black text-sm transition-all text-[#355872]/50 hover:text-[#355872] hover:bg-[#F7F8F0] whitespace-nowrap"
-          >
-            <Crop className="w-4 h-4" /> CROP
-          </Link>
-          {/* Inactive State */}
-          <Link
-            href="/image/resize"
-            className="flex items-center gap-2 px-6 py-3 rounded-xl font-black text-sm transition-all text-[#355872]/50 hover:text-[#355872] hover:bg-[#F7F8F0] whitespace-nowrap"
-          >
-            <Maximize className="w-4 h-4" /> RESIZE
-          </Link>
-        </div>
-      </div>
-
-      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
-        <ImageRotater />
-      </div>
-    </div>
+    <PageShell
+      title="Rotate Image."
+      description="Fix upside-down phone scans instantly. No server uploads, 100% private."
+      navToggle={<ImageNav active="rotate" />}
+    >
+      <ImageRotater />
+    </PageShell>
   );
 }
