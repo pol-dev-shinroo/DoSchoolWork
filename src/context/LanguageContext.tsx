@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useEffect,
+} from "react";
 import { en } from "@/dictionaries/en";
 import { ko } from "@/dictionaries/ko";
 import { Dictionary } from "@/dictionaries/en";
@@ -18,43 +24,27 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
 );
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  // 1. Initialize strictly as English to match the Server HTML (Prevent Hydration Mismatch)
-  const [locale, setLocaleState] = useState<Locale>("en");
-  const [isLoaded, setIsLoaded] = useState(false);
+  // Always start in English. No localStorage, no hydration errors.
+  const [locale, setLocale] = useState<Locale>("en");
 
+  // Simply update the HTML lang attribute for screen readers/SEO
   useEffect(() => {
-    // 2. Use setTimeout to move this logic to the "next tick"
-    // This bypasses the "Synchronous setState" linter error completely.
-    const timer = setTimeout(() => {
-      const saved = localStorage.getItem("language-pref") as Locale;
-      if (saved && saved !== "en") {
-        setLocaleState(saved);
-        document.documentElement.lang = saved;
-      }
-      setIsLoaded(true);
-    }, 0);
+    document.documentElement.lang = locale;
+  }, [locale]);
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  const setLocale = (newLocale: Locale) => {
-    setLocaleState(newLocale);
-    localStorage.setItem("language-pref", newLocale);
-    document.documentElement.lang = newLocale;
-  };
-
-  const t = locale === "en" ? en : ko;
+  // useMemo ensures React smoothly pushes updates to all components when language changes
+  const contextValue = useMemo(
+    () => ({
+      locale,
+      setLocale,
+      t: locale === "en" ? en : ko,
+    }),
+    [locale],
+  );
 
   return (
-    <LanguageContext.Provider value={{ locale, setLocale, t }}>
-      {/* 3. Optional Polish: We fade the content in only after we've checked the language.
-         This prevents the user from seeing "English" flash for a split second before "Korean" loads.
-      */}
-      <div
-        className={`transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"}`}
-      >
-        {children}
-      </div>
+    <LanguageContext.Provider value={contextValue}>
+      {children}
     </LanguageContext.Provider>
   );
 }
