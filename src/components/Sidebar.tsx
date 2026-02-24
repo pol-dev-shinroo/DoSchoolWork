@@ -2,19 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useLanguage } from "@/context/LanguageContext"; // 1. Import the hook
+import { useLanguage } from "@/context/LanguageContext";
 import {
   FileText,
   Image as ImageIcon,
   Sparkles,
   ArrowRightLeft,
+  FileAudio, // 1. Added FileAudio icon
 } from "lucide-react";
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { t } = useLanguage(); // 2. Initialize the translation object
+  const { t } = useLanguage();
 
-  // 3. Configuration using dictionary values
   const navItems = [
     {
       label: t.sidebar.pdf,
@@ -33,6 +33,13 @@ export default function Sidebar() {
       href: "/convert/pdf-to-word",
       pattern: "/convert",
       icon: ArrowRightLeft,
+    },
+    // 2. Added the new MP3 Category
+    {
+      label: t.sidebar.mp3,
+      href: "/mp3/transcribe",
+      pattern: "/mp3",
+      icon: FileAudio,
     },
   ];
 
@@ -81,7 +88,7 @@ export default function Sidebar() {
         );
       })}
 
-      {/* Coming Soon Section (Dynamic Translation) */}
+      {/* Coming Soon Section */}
       <div className="mt-auto mb-4 flex flex-col items-center gap-2 opacity-30 cursor-not-allowed">
         <div className="w-14 h-14 bg-[#F7F8F0] border border-[#355872]/5 rounded-2xl flex items-center justify-center">
           <Sparkles className="text-[#355872] w-6 h-6" />

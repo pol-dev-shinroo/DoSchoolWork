@@ -13,6 +13,7 @@ import {
   FileText,
   FileType,
   FileSearch,
+  FileAudio,
 } from "lucide-react";
 
 export default function HomeClient() {
@@ -73,6 +74,12 @@ export default function HomeClient() {
       icon: FileSearch,
       title: t.ocrPdf.title,
       description: t.ocrPdf.description,
+    },
+    {
+      href: "/mp3/transcribe",
+      icon: FileAudio,
+      title: t.mp3ToPdf.title,
+      description: t.mp3ToPdf.description,
     },
   ];
 
