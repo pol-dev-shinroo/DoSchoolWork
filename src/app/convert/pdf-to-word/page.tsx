@@ -3,7 +3,8 @@ import PdfToWordClient from "./PdfToWordClient";
 
 export const metadata: Metadata = {
   title: "Free PDF to Word | DoSchoolWork",
-  description: "Extract text from PDFs into editable Word documents instantly.",
+  description:
+    "Extract text from PDFs and convert them to editable Word documents locally.",
 };
 
 export default function PdfToWordPage() {

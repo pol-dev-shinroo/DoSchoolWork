@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import mammoth from "mammoth";
+import { renderAsync } from "docx-preview";
 import PageShell from "@/components/layouts/PageShell";
 import ConvertNav from "@/components/nav/ConvertNav";
 import { useLanguage } from "@/context/LanguageContext";
 
-// Import our new Dumb UI components
 import WordToPdfUpload from "@/components/ui/WordToPdfUpload";
 import WordToPdfWorkspace from "@/components/ui/WordToPdfWorkspace";
 
@@ -15,9 +14,7 @@ export default function WordToPdfClient() {
 
   // --- 1. STATE & REFS ---
   const [file, setFile] = useState<File | null>(null);
-  const [htmlContent, setHtmlContent] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState(false);
-
   const contentRef = useRef<HTMLDivElement>(null);
 
   // --- 2. LOGIC ---
@@ -30,11 +27,26 @@ export default function WordToPdfClient() {
 
     try {
       const arrayBuffer = await selectedFile.arrayBuffer();
-      const result = await mammoth.convertToHtml({ arrayBuffer });
-      setHtmlContent(result.value);
+
+      if (contentRef.current) {
+        // Clear previous content
+        contentRef.current.innerHTML = "";
+
+        // Render the DOCX with high fidelity into the div
+        await renderAsync(arrayBuffer, contentRef.current, contentRef.current, {
+          className: "docx_viewer",
+          inWrapper: false,
+          ignoreWidth: false,
+          ignoreHeight: false,
+          ignoreFonts: false,
+          breakPages: true,
+          useBase64URL: true,
+          experimental: true,
+        });
+      }
     } catch (error) {
-      console.error("Error reading Word document:", error);
-      alert("Could not process this .docx file.");
+      console.error("Error rendering Word document:", error);
+      alert("Could not render this .docx file.");
       setFile(null);
     } finally {
       setIsProcessing(false);
@@ -43,7 +55,9 @@ export default function WordToPdfClient() {
 
   const handleClear = () => {
     setFile(null);
-    setHtmlContent("");
+    if (contentRef.current) {
+      contentRef.current.innerHTML = "";
+    }
   };
 
   const generatePdf = async () => {
@@ -51,19 +65,26 @@ export default function WordToPdfClient() {
     setIsProcessing(true);
 
     try {
-      // Dynamically import html2pdf to avoid SSR window issues
       const html2pdf = (await import("html2pdf.js")).default;
       const element = contentRef.current;
+
       const opt = {
-        margin: [15, 15, 15, 15] as [number, number, number, number],
+        // Explicitly typed tuple to satisfy TypeScript
+        margin: [10, 10, 10, 10] as [number, number, number, number],
         filename: `DoSchoolWork_${file.name.replace(".docx", "")}.pdf`,
         image: { type: "jpeg" as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          scrollY: 0,
+        },
         jsPDF: {
           unit: "mm" as const,
           format: "a4" as const,
           orientation: "portrait" as const,
         },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
       };
 
       await html2pdf().set(opt).from(element).save();
@@ -89,7 +110,6 @@ export default function WordToPdfClient() {
           <WordToPdfWorkspace
             fileName={file.name}
             isProcessing={isProcessing}
-            htmlContent={htmlContent}
             contentRef={contentRef}
             onClear={handleClear}
             onConvert={generatePdf}

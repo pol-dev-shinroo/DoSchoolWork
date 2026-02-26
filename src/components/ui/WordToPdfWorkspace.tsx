@@ -4,7 +4,6 @@ import { FileText, Trash2, Download, Loader2 } from "lucide-react";
 interface WordToPdfWorkspaceProps {
   fileName: string;
   isProcessing: boolean;
-  htmlContent: string;
   contentRef: React.RefObject<HTMLDivElement | null>;
   onClear: () => void;
   onConvert: () => void;
@@ -13,7 +12,6 @@ interface WordToPdfWorkspaceProps {
 export default function WordToPdfWorkspace({
   fileName,
   isProcessing,
-  htmlContent,
   contentRef,
   onClear,
   onConvert,
@@ -54,13 +52,13 @@ export default function WordToPdfWorkspace({
       <div className="hidden">
         <div
           ref={contentRef}
-          className="pdf-content-wrapper text-black bg-white"
+          className="pdf-content-wrapper bg-white"
           style={{
-            padding: "20px",
-            fontFamily: "Arial, sans-serif",
-            lineHeight: "1.6",
+            width: "794px", // Approx A4 width at 96 DPI
+            minHeight: "1123px",
+            padding: "40px",
+            color: "black",
           }}
-          dangerouslySetInnerHTML={{ __html: htmlContent }}
         />
       </div>
     </div>
