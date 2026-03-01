@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Document, Packer, Paragraph, TextRun, AlignmentType } from "docx";
+import {
+  Document,
+  Packer,
+  Paragraph,
+  TextRun,
+  AlignmentType,
+  PageBreak,
+} from "docx";
 import PageShell from "@/components/layouts/PageShell";
 import ConvertNav from "@/components/nav/ConvertNav";
 import { useLanguage } from "@/context/LanguageContext";
@@ -78,7 +85,6 @@ interface PDFDocumentProxy {
   getPage: (pageNumber: number) => Promise<PDFPageProxy>;
 }
 
-// Strict blueprint for the dynamically imported PDF.js library
 interface PDFJSLib {
   OPS: Record<string, number>;
   getDocument: (params: { data: ArrayBuffer }) => { promise: Promise<unknown> };
@@ -321,13 +327,26 @@ async function extractWordsFromPdf(
         "",
       );
 
-      // FIX 1: Preserving explicit PDF space characters instead of trimming them away
       if (cleanText.length === 0) return;
 
       const realFontObj = fontStyles[textItem.fontName || ""];
       const rawFontName =
         (realFontObj ? realFontObj.fontFamily : textItem.fontName) || "";
-      const lowerFont = rawFontName.toLowerCase();
+
+      // FIX 1: Run Regex on the clean font name so subset tags (like +B) don't create false positives,
+      // but real tags (like MalgunGothic-Bold) are caught!
+      const rawCleanFontFamily = rawFontName.split("+").pop() || "Arial";
+      const lowerCleanFont = rawCleanFontFamily.toLowerCase();
+      const isRegexBold =
+        /bold|black|heavy|weight|-bd|bd-|w7|w8|w9|demi|\-b$|_b$|\bb\b/i.test(
+          lowerCleanFont,
+        );
+      const isRegexItalic = /italic|oblique|-it|it-/i.test(lowerCleanFont);
+
+      const cleanFontFamily = rawCleanFontFamily
+        .replace(/([a-z])([A-Z])/g, "$1 $2")
+        .replace(/-|,|Bold|Italic/gi, "")
+        .trim();
 
       const [ptX, ptY] = viewport.convertToViewportPoint(
         textItem.transform[4],
@@ -451,15 +470,14 @@ async function extractWordsFromPdf(
         }
       }
 
+      // FIX 2: Font Size Scaling for Optical Bold Detection
+      // Large fonts (like Titles > 14pt) naturally have more proportional white space in their boxes.
+      // So we dynamically lower the ink density requirement for large text!
       const textArea = w * h;
       const inkDensity = textArea > 0 ? darkCount / textArea : 0;
-      const isOptBold = inkDensity > 0.23;
-
-      let cleanFontFamily = rawFontName.split("+").pop() || "Arial";
-      cleanFontFamily = cleanFontFamily
-        .replace(/([a-z])([A-Z])/g, "$1 $2")
-        .replace(/-|,|Bold|Italic/gi, "")
-        .trim();
+      const densityThreshold = fontSize > 14 ? 0.26 : 0.34;
+      const isOptBold =
+        inkDensity > densityThreshold && cleanText.trim().length > 1;
 
       pageWords.push({
         text: cleanText,
@@ -469,12 +487,8 @@ async function extractWordsFromPdf(
         height: fontSize,
         clusterY: 0,
         pageIndex: i,
-        isBold:
-          isOptBold ||
-          /bold|black|heavy|weight|-bd|bd-|w7|w8|w9|demi|medium|\+.*b$/i.test(
-            lowerFont,
-          ),
-        isItalic: /italic|oblique|-it|it-/i.test(lowerFont),
+        isBold: isOptBold || isRegexBold,
+        isItalic: isRegexItalic,
         isUnderline: isOptUnderline,
         fontSize: fontSize,
         fontFamily: cleanFontFamily,
@@ -521,7 +535,6 @@ function assembleLines(words: ParsedWord[]): ParsedLine[] {
         const prev = currentLineWords[index - 1];
         const physicalGap = word.x - (prev.x + prev.width);
 
-        // FIX 2: Lowered the threshold to 12% to catch tight English kerning
         if (physicalGap > word.height * 0.12) prefix = " ";
       }
 
@@ -529,7 +542,6 @@ function assembleLines(words: ParsedWord[]): ParsedLine[] {
       const isJustSpace = word.text.trim().length === 0;
 
       if (lastBlock) {
-        // FIX 3: Intelligently bind pure spaces to the previous word so they don't get lost in style breaks
         if (isJustSpace) {
           lastBlock.text += prefix + word.text;
         } else if (
@@ -543,7 +555,6 @@ function assembleLines(words: ParsedWord[]): ParsedLine[] {
         ) {
           lastBlock.text += prefix + word.text;
         } else {
-          // Bind the gap space to the PREVIOUS word before making the visual break
           if (prefix) {
             lastBlock.text += prefix;
           }
@@ -646,24 +657,33 @@ async function createDocxBlob(lines: ParsedLine[]): Promise<Blob> {
     );
 
     if (currentParagraphBlocks.length > 0) {
+      const paragraphChildren: (TextRun | PageBreak)[] = [];
+
+      if (hasText && incomingPageBreak) {
+        paragraphChildren.push(new PageBreak());
+      }
+
+      paragraphChildren.push(
+        ...currentParagraphBlocks.map(
+          (b) =>
+            new TextRun({
+              text: b.text,
+              bold: b.isBold,
+              italics: b.isItalic,
+              underline: b.isUnderline ? { type: "single" } : undefined,
+              size: b.fontSize * 2,
+              font: b.fontFamily,
+              color: b.color !== "000000" ? b.color : undefined,
+              highlight: b.highlight,
+            }),
+        ),
+      );
+
       paragraphs.push(
         new Paragraph({
-          children: currentParagraphBlocks.map(
-            (b) =>
-              new TextRun({
-                text: b.text,
-                bold: b.isBold,
-                italics: b.isItalic,
-                underline: b.isUnderline ? { type: "single" } : undefined,
-                size: b.fontSize * 2,
-                font: b.fontFamily,
-                color: b.color !== "000000" ? b.color : undefined,
-                highlight: b.highlight,
-              }),
-          ),
+          children: paragraphChildren,
           alignment: currentAlignment as "left" | "center" | "right" | "both",
           indent: currentIndent > 0 ? { firstLine: currentIndent } : undefined,
-          pageBreakBefore: hasText ? incomingPageBreak : false,
           spacing: {
             line: Math.round(medianGap * 20),
             lineRule: "exact",
@@ -743,21 +763,34 @@ async function createDocxBlob(lines: ParsedLine[]): Promise<Blob> {
       currentSpacingBefore = spacingBeforeToApply;
     }
 
-    line.blocks.forEach((block) => {
+    line.blocks.forEach((block, index) => {
       const lastBlock =
         currentParagraphBlocks[currentParagraphBlocks.length - 1];
-      if (
-        lastBlock &&
-        lastBlock.isBold === block.isBold &&
-        lastBlock.isItalic === block.isItalic &&
-        lastBlock.isUnderline === block.isUnderline &&
-        lastBlock.fontSize === block.fontSize &&
-        lastBlock.fontFamily === block.fontFamily &&
-        lastBlock.color === block.color &&
-        lastBlock.highlight === block.highlight
-      ) {
-        lastBlock.text +=
-          (lastBlock.text.endsWith(" ") ? "" : " ") + block.text;
+
+      if (lastBlock) {
+        if (index === 0 && !isNewParagraph && j > 0) {
+          if (
+            !lastBlock.text.endsWith(" ") &&
+            !lastBlock.text.endsWith("-") &&
+            !block.text.startsWith(" ")
+          ) {
+            lastBlock.text += " ";
+          }
+        }
+
+        if (
+          lastBlock.isBold === block.isBold &&
+          lastBlock.isItalic === block.isItalic &&
+          lastBlock.isUnderline === block.isUnderline &&
+          lastBlock.fontSize === block.fontSize &&
+          lastBlock.fontFamily === block.fontFamily &&
+          lastBlock.color === block.color &&
+          lastBlock.highlight === block.highlight
+        ) {
+          lastBlock.text += block.text;
+        } else {
+          currentParagraphBlocks.push({ ...block });
+        }
       } else {
         currentParagraphBlocks.push({ ...block });
       }
