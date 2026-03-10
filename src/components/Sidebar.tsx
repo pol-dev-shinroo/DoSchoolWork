@@ -14,7 +14,6 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { t, locale } = useLanguage();
 
-  // 1. Reordered: Convert is now first!
   const navItems = [
     {
       label: t.sidebar.convert,
@@ -30,7 +29,7 @@ export default function Sidebar() {
     },
     {
       label: t.sidebar.img,
-      href: `/${locale}/image/image-to-pdf`, // <-- UPDATED URL
+      href: `/${locale}/image/image-to-pdf`,
       pattern: "/image",
       icon: ImageIcon,
     },
@@ -39,7 +38,9 @@ export default function Sidebar() {
   return (
     <aside className="fixed left-0 top-20 bottom-0 w-24 bg-white/50 backdrop-blur-sm border-r border-[#355872]/10 flex flex-col items-center py-10 gap-8 z-40 hidden md:flex">
       {navItems.map((item) => {
-        const isInCategory = pathname.includes(item.pattern);
+        // THE FIX: Strict path matching using startsWith and the current locale!
+        // This prevents "/convert/pdf-to-word" from triggering the "/pdf" highlight.
+        const isInCategory = pathname.startsWith(`/${locale}${item.pattern}`);
         const Icon = item.icon;
 
         const finalHref = isInCategory ? pathname : item.href;

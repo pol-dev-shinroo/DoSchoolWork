@@ -1,15 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument, PageSizes } from "pdf-lib"; // IMPORTED PAGESIZES
 import PageShell from "@/components/layouts/PageShell";
 import ImageNav from "@/components/nav/ImageNav";
 import { useLanguage } from "@/context/LanguageContext";
 
-// Note: You can rename these UI components later, but I kept the imports
-// the same for now so your app doesn't break!
-import JpgToPdfUpload from "@/components/ui/JpgToPdfUpload";
-import JpgToPdfWorkspace from "@/components/ui/JpgToPdfWorkspace";
+import ImageToPdfUpload from "@/components/ui/ImageToPdfUpload";
+import ImageToPdfWorkspace from "@/components/ui/ImageToPdfWorkspace";
 
 interface ImageItem {
   id: string;
@@ -23,7 +21,6 @@ export default function ImageToPdfClient() {
   const [images, setImages] = useState<ImageItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Allow multiple formats
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     if (selectedFiles.length === 0) return;
@@ -54,18 +51,7 @@ export default function ImageToPdfClient() {
     setImages(newImages);
   };
 
-  // The Magic Canvas Converter for WEBP/BMP/GIF
-  const convertToCompatibleBytes = async (
-    file: File,
-  ): Promise<{ bytes: ArrayBuffer; type: "png" | "jpg" }> => {
-    if (file.type === "image/jpeg" || file.type === "image/png") {
-      return {
-        bytes: await file.arrayBuffer(),
-        type: file.type === "image/png" ? "png" : "jpg",
-      };
-    }
-
-    // If it's WEBP, GIF, etc., draw to canvas and export as PNG
+  const cleanImageViaCanvas = async (file: File): Promise<ArrayBuffer> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
@@ -77,7 +63,7 @@ export default function ImageToPdfClient() {
         ctx.drawImage(img, 0, 0);
         canvas.toBlob((blob) => {
           if (!blob) return reject("Blob conversion failed");
-          blob.arrayBuffer().then((bytes) => resolve({ bytes, type: "png" }));
+          blob.arrayBuffer().then(resolve);
         }, "image/png");
       };
       img.onerror = reject;
@@ -92,24 +78,53 @@ export default function ImageToPdfClient() {
     try {
       const pdfDoc = await PDFDocument.create();
 
-      for (const img of images) {
-        // Use our new converter to guarantee pdf-lib won't crash
-        const { bytes, type } = await convertToCompatibleBytes(img.file);
-        let embeddedImage;
+      // Standard A4 dimensions in points
+      const a4Width = PageSizes.A4[0];
+      const a4Height = PageSizes.A4[1];
+      const margin = 30; // 30-point safe margin for physical printers
 
-        if (type === "png") {
-          embeddedImage = await pdfDoc.embedPng(bytes);
-        } else {
-          embeddedImage = await pdfDoc.embedJpg(bytes);
+      for (const img of images) {
+        let embeddedImage;
+        const file = img.file;
+
+        try {
+          const bytes = await file.arrayBuffer();
+          if (file.type === "image/png") {
+            embeddedImage = await pdfDoc.embedPng(bytes);
+          } else if (file.type === "image/jpeg" || file.type === "image/jpg") {
+            embeddedImage = await pdfDoc.embedJpg(bytes);
+          } else {
+            throw new Error("Needs canvas conversion");
+          }
+        } catch (err) {
+          const cleanedBytes = await cleanImageViaCanvas(file);
+          embeddedImage = await pdfDoc.embedPng(cleanedBytes);
         }
 
-        const { width, height } = embeddedImage;
-        const page = pdfDoc.addPage([width, height]);
+        const imgWidth = embeddedImage.width;
+        const imgHeight = embeddedImage.height;
+
+        // ==========================================
+        // THE PERFECT PRINT MATH
+        // Calculates how much to shrink/grow the image so it fits A4 precisely
+        // ==========================================
+        const maxWidth = a4Width - margin * 2;
+        const maxHeight = a4Height - margin * 2;
+
+        const scale = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
+        const scaledWidth = imgWidth * scale;
+        const scaledHeight = imgHeight * scale;
+
+        // Center the image on the A4 page
+        const x = (a4Width - scaledWidth) / 2;
+        const y = (a4Height - scaledHeight) / 2;
+
+        const page = pdfDoc.addPage(PageSizes.A4);
         page.drawImage(embeddedImage, {
-          x: 0,
-          y: 0,
-          width,
-          height,
+          x,
+          y,
+          width: scaledWidth,
+          height: scaledHeight,
         });
       }
 
@@ -119,7 +134,7 @@ export default function ImageToPdfClient() {
       });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = "HisPDF_Images.pdf"; // Updated brand name
+      link.download = "HisPDF_Images.pdf";
       link.click();
     } catch (error) {
       console.error(error);
@@ -137,9 +152,9 @@ export default function ImageToPdfClient() {
     >
       <div className="max-w-2xl mx-auto p-10 border-4 border-double border-[#355872]/20 rounded-[3rem] bg-white shadow-xl shadow-[#355872]/5 mt-8">
         {images.length === 0 ? (
-          <JpgToPdfUpload onFileChange={handleFileChange} />
+          <ImageToPdfUpload onFileChange={handleFileChange} />
         ) : (
-          <JpgToPdfWorkspace
+          <ImageToPdfWorkspace
             images={images}
             isProcessing={isProcessing}
             onFileChange={handleFileChange}

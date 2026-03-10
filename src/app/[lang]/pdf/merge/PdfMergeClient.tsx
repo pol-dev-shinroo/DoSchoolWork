@@ -6,34 +6,63 @@ import PageShell from "@/components/layouts/PageShell";
 import PdfNav from "@/components/nav/PdfNav";
 import { useLanguage } from "@/context/LanguageContext";
 
-// Import Dumb UI components
 import PdfMergeUpload from "@/components/ui/PdfMergeUpload";
 import PdfMergeWorkspace from "@/components/ui/PdfMergeWorkspace";
 
+// NEW: Added pageCount to the state interface
 interface FileItem {
   id: string;
   file: File;
+  insertAfterPage?: string;
+  pageCount: number;
 }
 
 export default function PdfMergeClient() {
   const { t } = useLanguage();
 
-  // --- 1. STATE ---
   const [files, setFiles] = useState<FileItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // --- 2. LOGIC ---
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // ==========================================
+  // THE PAGE-COUNT SCANNER
+  // Asynchronously reads the PDF upon upload to get the exact page count
+  // ==========================================
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     if (selectedFiles.length === 0) return;
 
-    const newFiles = selectedFiles.map((file) => ({
-      id: Math.random().toString(36).substring(2, 11),
-      file,
-    }));
+    const availableSlots = Math.max(0, 2 - files.length);
+    if (availableSlots === 0) return;
 
-    setFiles((prev) => [...prev, ...newFiles]);
-    e.target.value = "";
+    const filesToProcess = selectedFiles.slice(0, availableSlots);
+    setIsProcessing(true); // Briefly show loading while we scan the PDFs
+
+    try {
+      const newFiles = await Promise.all(
+        filesToProcess.map(async (file) => {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdfDoc = await PDFDocument.load(arrayBuffer);
+          const pageCount = pdfDoc.getPageCount(); // Grab the page count!
+
+          return {
+            id: Math.random().toString(36).substring(2, 11),
+            file,
+            insertAfterPage: "",
+            pageCount,
+          };
+        }),
+      );
+
+      setFiles((prev) => [...prev, ...newFiles]);
+    } catch (error) {
+      console.error(error);
+      alert(
+        "Error reading PDF. Please ensure the file is not corrupted or password protected.",
+      );
+    } finally {
+      setIsProcessing(false);
+      e.target.value = "";
+    }
   };
 
   const removeFile = (id: string) => {
@@ -44,33 +73,54 @@ export default function PdfMergeClient() {
     setFiles([]);
   };
 
-  const moveFile = (index: number, direction: "up" | "down") => {
-    const newFiles = [...files];
-    const targetIndex = direction === "up" ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= newFiles.length) return;
+  const handlePageChange = (id: string, value: string) => {
+    setFiles((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, insertAfterPage: value } : f)),
+    );
+  };
 
-    [newFiles[index], newFiles[targetIndex]] = [
-      newFiles[targetIndex],
-      newFiles[index],
-    ];
-    setFiles(newFiles);
+  const handleReorder = (dragIndex: number, hoverIndex: number) => {
+    setFiles((prev) => {
+      const newFiles = [...prev];
+      const draggedItem = newFiles[dragIndex];
+      newFiles.splice(dragIndex, 1);
+      newFiles.splice(hoverIndex, 0, draggedItem);
+      return newFiles;
+    });
   };
 
   const handleMerge = async () => {
-    if (files.length < 2) return;
+    if (files.length !== 2) return;
     setIsProcessing(true);
 
     try {
-      const mergedPdf = await PDFDocument.create();
+      const baseBuffer = await files[0].file.arrayBuffer();
+      const mergedPdf = await PDFDocument.load(baseBuffer);
 
-      for (const item of files) {
-        const arrayBuffer = await item.file.arrayBuffer();
-        const pdfDoc = await PDFDocument.load(arrayBuffer);
-        const copiedPages = await mergedPdf.copyPages(
-          pdfDoc,
-          pdfDoc.getPageIndices(),
-        );
-        copiedPages.forEach((page) => mergedPdf.addPage(page));
+      const insertItem = files[1];
+      const arrayBuffer = await insertItem.file.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(arrayBuffer);
+
+      const copiedPages = await mergedPdf.copyPages(
+        pdfDoc,
+        pdfDoc.getPageIndices(),
+      );
+
+      let insertIndex = mergedPdf.getPageCount();
+
+      if (insertItem.insertAfterPage) {
+        const parsedPage = parseInt(insertItem.insertAfterPage, 10);
+        if (
+          !isNaN(parsedPage) &&
+          parsedPage > 0 &&
+          parsedPage <= mergedPdf.getPageCount()
+        ) {
+          insertIndex = parsedPage;
+        }
+      }
+
+      for (let j = 0; j < copiedPages.length; j++) {
+        mergedPdf.insertPage(insertIndex + j, copiedPages[j]);
       }
 
       const pdfBytes = await mergedPdf.save();
@@ -79,16 +129,18 @@ export default function PdfMergeClient() {
       });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `Merged_DoSchoolWork.pdf`;
+      link.download = `Merged_HisPDF.pdf`;
       link.click();
     } catch (error) {
-      alert("Something went wrong during merging!");
+      console.error(error);
+      alert(
+        "Something went wrong during merging! Ensure files are valid PDFs.",
+      );
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // --- 3. RENDER ---
   return (
     <PageShell
       title={t.pdfMerge.title}
@@ -103,10 +155,11 @@ export default function PdfMergeClient() {
             files={files}
             isProcessing={isProcessing}
             onFileChange={handleFileChange}
-            onMoveFile={moveFile}
             onRemoveFile={removeFile}
+            onPageChange={handlePageChange}
             onClearAll={clearAllFiles}
             onMerge={handleMerge}
+            onReorder={handleReorder}
           />
         )}
       </div>

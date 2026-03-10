@@ -14,7 +14,7 @@ interface ImageItem {
   preview: string;
 }
 
-interface JpgToPdfWorkspaceProps {
+interface ImageToPdfWorkspaceProps {
   images: ImageItem[];
   isProcessing: boolean;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -23,14 +23,14 @@ interface JpgToPdfWorkspaceProps {
   onConvert: () => void;
 }
 
-export default function JpgToPdfWorkspace({
+export default function ImageToPdfWorkspace({
   images,
   isProcessing,
   onFileChange,
   onRemove,
   onMove,
   onConvert,
-}: JpgToPdfWorkspaceProps) {
+}: ImageToPdfWorkspaceProps) {
   return (
     <div className="flex flex-col gap-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -40,11 +40,11 @@ export default function JpgToPdfWorkspace({
             className="relative group bg-[#F7F8F0] p-3 rounded-2xl border-2 border-[#355872]/5 hover:border-[#355872]/20 transition-all flex flex-col gap-3"
           >
             {/* Image Preview */}
-            <div className="h-32 w-full bg-white rounded-xl overflow-hidden relative">
+            <div className="h-32 w-full bg-white rounded-xl overflow-hidden relative flex items-center justify-center">
               <img
                 src={item.preview}
                 alt="preview"
-                className="w-full h-full object-cover"
+                className="max-w-full max-h-full object-contain"
               />
             </div>
 
@@ -86,7 +86,7 @@ export default function JpgToPdfWorkspace({
           <input
             type="file"
             multiple
-            accept="image/png, image/jpeg, image/jpg"
+            accept="image/*" // THE FIX: This now allows WEBP, BMP, GIF, etc!
             onChange={onFileChange}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
           />
