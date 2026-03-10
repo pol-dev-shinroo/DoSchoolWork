@@ -3,10 +3,11 @@
 import React, { useState } from "react";
 import { PDFDocument } from "pdf-lib";
 import PageShell from "@/components/layouts/PageShell";
-import ConvertNav from "@/components/nav/ConvertNav";
+import ImageNav from "@/components/nav/ImageNav";
 import { useLanguage } from "@/context/LanguageContext";
 
-// Import new Dumb UI components
+// Note: You can rename these UI components later, but I kept the imports
+// the same for now so your app doesn't break!
 import JpgToPdfUpload from "@/components/ui/JpgToPdfUpload";
 import JpgToPdfWorkspace from "@/components/ui/JpgToPdfWorkspace";
 
@@ -16,14 +17,13 @@ interface ImageItem {
   preview: string;
 }
 
-export default function JpgToPdfClient() {
+export default function ImageToPdfClient() {
   const { t } = useLanguage();
 
-  // --- 1. STATE ---
   const [images, setImages] = useState<ImageItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // --- 2. LOGIC ---
+  // Allow multiple formats
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     if (selectedFiles.length === 0) return;
@@ -54,6 +54,37 @@ export default function JpgToPdfClient() {
     setImages(newImages);
   };
 
+  // The Magic Canvas Converter for WEBP/BMP/GIF
+  const convertToCompatibleBytes = async (
+    file: File,
+  ): Promise<{ bytes: ArrayBuffer; type: "png" | "jpg" }> => {
+    if (file.type === "image/jpeg" || file.type === "image/png") {
+      return {
+        bytes: await file.arrayBuffer(),
+        type: file.type === "image/png" ? "png" : "jpg",
+      };
+    }
+
+    // If it's WEBP, GIF, etc., draw to canvas and export as PNG
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject("Canvas not supported");
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob((blob) => {
+          if (!blob) return reject("Blob conversion failed");
+          blob.arrayBuffer().then((bytes) => resolve({ bytes, type: "png" }));
+        }, "image/png");
+      };
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleConvert = async () => {
     if (images.length === 0) return;
     setIsProcessing(true);
@@ -62,13 +93,14 @@ export default function JpgToPdfClient() {
       const pdfDoc = await PDFDocument.create();
 
       for (const img of images) {
-        const imageBytes = await img.file.arrayBuffer();
+        // Use our new converter to guarantee pdf-lib won't crash
+        const { bytes, type } = await convertToCompatibleBytes(img.file);
         let embeddedImage;
 
-        if (img.file.type === "image/png") {
-          embeddedImage = await pdfDoc.embedPng(imageBytes);
+        if (type === "png") {
+          embeddedImage = await pdfDoc.embedPng(bytes);
         } else {
-          embeddedImage = await pdfDoc.embedJpg(imageBytes);
+          embeddedImage = await pdfDoc.embedJpg(bytes);
         }
 
         const { width, height } = embeddedImage;
@@ -87,7 +119,7 @@ export default function JpgToPdfClient() {
       });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = "Converted_Assignment.pdf";
+      link.download = "HisPDF_Images.pdf"; // Updated brand name
       link.click();
     } catch (error) {
       console.error(error);
@@ -97,12 +129,11 @@ export default function JpgToPdfClient() {
     }
   };
 
-  // --- 3. RENDER ---
   return (
     <PageShell
-      title={t.jpgToPdf.title}
-      description={t.jpgToPdf.description}
-      navToggle={<ConvertNav active="jpg-to-pdf" />}
+      title={t.imageToPdf.title}
+      description={t.imageToPdf.description}
+      navToggle={<ImageNav active="image-to-pdf" />}
     >
       <div className="max-w-2xl mx-auto p-10 border-4 border-double border-[#355872]/20 rounded-[3rem] bg-white shadow-xl shadow-[#355872]/5 mt-8">
         {images.length === 0 ? (

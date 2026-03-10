@@ -13,88 +13,99 @@ import {
   FileText,
   FileType,
   FileSearch,
-  FileAudio,
+  BookUp,
+  CheckCircle,
+  ShieldCheck,
 } from "lucide-react";
 
 export default function HomeClient() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
-  // We define TOOLS inside the component so it can access the 't' translations dynamically
   const TOOLS = [
     {
-      href: "/pdf/crop",
-      icon: Scissors,
-      title: t.pdfCrop.title,
-      description: t.pdfCrop.description,
-    },
-    {
-      href: "/pdf/merge",
-      icon: FileStack,
-      title: t.pdfMerge.title,
-      description: t.pdfMerge.description,
-    },
-    {
-      href: "/image/rotate",
-      icon: ImageIcon,
-      title: t.imageRotate.title,
-      description: t.imageRotate.description,
-    },
-    {
-      href: "/image/crop",
-      icon: Crop,
-      title: t.imageCrop.title,
-      description: t.imageCrop.description,
-    },
-    {
-      href: "/image/resize",
-      icon: Maximize,
-      title: t.imageResize.title,
-      description: t.imageResize.description,
-    },
-    {
-      href: "/convert/jpg-to-pdf",
-      icon: FileImage,
-      title: t.jpgToPdf.title,
-      description: t.jpgToPdf.description,
-    },
-    {
-      href: "/convert/word-to-pdf",
-      icon: FileText,
-      title: t.wordToPdf.title,
-      description: t.wordToPdf.description,
-    },
-    {
-      href: "/convert/pdf-to-word",
-      icon: FileType,
-      title: t.pdfToWord.title,
-      description: t.pdfToWord.description,
-    },
-    {
-      href: "/convert/ocr-pdf",
+      href: `/${locale}/convert/ocr-pdf`,
       icon: FileSearch,
       title: t.ocrPdf.title,
       description: t.ocrPdf.description,
     },
     {
-      href: "/mp3/transcribe",
-      icon: FileAudio,
-      title: t.mp3ToPdf.title,
-      description: t.mp3ToPdf.description,
+      href: `/${locale}/convert/pdf-to-word`,
+      icon: FileType,
+      title: t.pdfToWord.title,
+      description: t.pdfToWord.description,
+    },
+    {
+      href: `/${locale}/convert/epub-to-pdf`,
+      icon: BookUp,
+      title: t.epubToPdf.title,
+      description: t.epubToPdf.description,
+    },
+    {
+      href: `/${locale}/pdf/crop`,
+      icon: Scissors,
+      title: t.pdfCrop.title,
+      description: t.pdfCrop.description,
+    },
+    {
+      href: `/${locale}/pdf/merge`,
+      icon: FileStack,
+      title: t.pdfMerge.title,
+      description: t.pdfMerge.description,
+    },
+    {
+      href: `/${locale}/image/image-to-pdf`, // <-- UPDATED URL
+      icon: FileImage,
+      title: t.imageToPdf.title,
+      description: t.imageToPdf.description,
+    },
+    {
+      href: `/${locale}/image/rotate`,
+      icon: ImageIcon,
+      title: t.imageRotate.title,
+      description: t.imageRotate.description,
+    },
+    {
+      href: `/${locale}/image/crop`,
+      icon: Crop,
+      title: t.imageCrop.title,
+      description: t.imageCrop.description,
+    },
+    {
+      href: `/${locale}/image/resize`,
+      icon: Maximize,
+      title: t.imageResize.title,
+      description: t.imageResize.description,
     },
   ];
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4">
       {/* Hero Section */}
-      <section className="text-center mb-16 pt-8">
-        <h1 className="text-5xl md:text-6xl font-black mb-6 tracking-tight text-[#355872]">
+      <section className="text-center pt-4 md:pt-6 mb-12 flex flex-col items-center">
+        {/* Main Title - Prominent and Tight */}
+        <h1 className="text-5xl md:text-7xl font-black mb-4 tracking-tight text-[#355872]">
           {t.home.heroTitle}
         </h1>
-        <p className="text-lg md:text-xl text-[#355872]/70 font-bold max-w-2xl mx-auto">
-          {t.home.heroSubtitle1}
-          <br className="hidden md:block" />
-          {t.home.heroSubtitle2}
-        </p>
+
+        {/* HORIZONTAL CHECKLIST (BELOW TITLE) */}
+        <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 text-[#355872]/80 font-bold max-w-4xl">
+          <div className="flex items-center gap-2 bg-white/60 px-5 py-2 rounded-full border border-[#355872]/5 shadow-sm">
+            <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
+            <span className="text-base md:text-lg">{t.home.featureFree}</span>
+          </div>
+
+          <div className="flex items-center gap-2 bg-white/60 px-5 py-2 rounded-full border border-[#355872]/5 shadow-sm">
+            <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
+            <span className="text-base md:text-lg">
+              {t.home.featureNoLogin}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 bg-white/60 px-5 py-2 rounded-full border border-[#355872]/5 shadow-sm">
+            <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0" />
+            <span className="text-base md:text-lg">{t.home.featureLocal}</span>
+          </div>
+        </div>
       </section>
 
       {/* Feature Tiles Grid */}

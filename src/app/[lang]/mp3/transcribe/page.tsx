@@ -7,6 +7,10 @@ export const metadata: Metadata = {
     "Transcribe lectures and audio files locally in your browser with AI.",
 };
 
+export function generateStaticParams() {
+  return [{ lang: "en" }, { lang: "ko" }];
+}
+
 export default function TranscribePage() {
   return <TranscribeClient />;
 }

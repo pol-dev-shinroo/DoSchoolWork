@@ -11,32 +11,44 @@ export interface TerminalLog {
 interface TranscribeTerminalProps {
   logs: TerminalLog[];
   liveText: string;
+  // FIX 1: Tell TypeScript we are expecting the new progress prop
+  transcriptionProgress?: number;
 }
 
 export default function TranscribeTerminal({
   logs,
   liveText,
+  transcriptionProgress = 0, // Default to 0
 }: TranscribeTerminalProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom as logs/text arrive
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [logs, liveText]);
+  }, [logs, liveText, transcriptionProgress]);
 
   return (
     <div className="bg-[#0f172a] rounded-3xl overflow-hidden border-2 border-[#355872]/20 shadow-2xl font-mono flex flex-col w-full max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4">
       {/* Terminal Header */}
-      <div className="bg-[#1e293b] px-4 py-3 flex items-center gap-3 border-b border-slate-700/50">
-        <div className="flex gap-2">
-          <div className="w-3 h-3 rounded-full bg-red-500/80" />
-          <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-          <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
+      <div className="bg-[#1e293b] px-4 py-3 flex items-center justify-between border-b border-slate-700/50">
+        <div className="flex items-center gap-3">
+          <div className="flex gap-2">
+            <div className="w-3 h-3 rounded-full bg-red-500/80" />
+            <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+            <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
+          </div>
+          <div className="flex items-center gap-2 text-slate-400 text-xs ml-2 font-bold uppercase tracking-widest">
+            <Terminal className="w-4 h-4" />
+            AI Engine Status
+          </div>
         </div>
-        <div className="flex items-center gap-2 text-slate-400 text-xs ml-2 font-bold uppercase tracking-widest">
-          <Terminal className="w-4 h-4" />
-          AI Engine Status
-        </div>
+
+        {/* FIX 2: A beautiful global progress indicator in the top right! */}
+        {transcriptionProgress > 0 && transcriptionProgress < 100 && (
+          <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            Processing Audio: {transcriptionProgress}%
+          </div>
+        )}
       </div>
 
       {/* Terminal Body */}
@@ -79,7 +91,6 @@ export default function TranscribeTerminal({
               </span>
             </div>
 
-            {/* Sub-progress bar for model downloading */}
             {typeof log.progress === "number" && log.status === "pending" && (
               <div className="ml-16 mt-1 flex items-center gap-3 max-w-xs">
                 <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
@@ -96,9 +107,25 @@ export default function TranscribeTerminal({
           </div>
         ))}
 
+        {/* FIX 3: Add a global progress bar above the live text for massive files */}
+        {transcriptionProgress > 0 && transcriptionProgress < 100 && (
+          <div className="mt-4 mb-2 flex flex-col gap-2">
+            <div className="flex justify-between text-xs font-bold text-slate-400">
+              <span>Chunk Extraction</span>
+              <span className="text-emerald-400">{transcriptionProgress}%</span>
+            </div>
+            <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-emerald-500 transition-all duration-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                style={{ width: `${transcriptionProgress}%` }}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Live Typing Text for Transcription */}
         {liveText && (
-          <div className="mt-4 p-4 bg-slate-800/50 rounded-xl border border-slate-700 text-emerald-300/90 leading-relaxed shadow-inner">
+          <div className="mt-2 p-4 bg-slate-800/50 rounded-xl border border-slate-700 text-emerald-300/90 leading-relaxed shadow-inner">
             <span className="text-slate-500 mr-2 border-r border-slate-600 pr-2 select-none">
               Output
             </span>

@@ -13,22 +13,44 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 bg-[#F7F8F0]/80 backdrop-blur-md z-50 border-b border-[#355872]/10">
       <div className="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
-        {/* Logo */}
+        {/* NEW STATIC HISPDF LOGO */}
         <Link
-          href="/"
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+          href={`/${locale}`}
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
         >
-          <div className="w-10 h-10 bg-[#355872] rounded-xl flex items-center justify-center">
-            <span className="text-[#F7F8F0] font-black text-xl italic">D</span>
+          {/* Creative, Geometric static 'H' Fold logo */}
+          <div className="relative w-12 h-12 flex items-center justify-center">
+            {/* Base geometric shape */}
+            <div className="absolute w-10 h-10 bg-[#355872] rounded-[10px]"></div>
+
+            {/* Main H Body */}
+            <span className="relative text-[#F7F8F0] font-black text-2xl tracking-tighter mt-0.5 z-10">
+              H
+            </span>
+
+            {/* The Creative Fold Element */}
+            <div
+              className="absolute bottom-0 right-0 w-6 h-6 rounded-br-xl overflow-hidden"
+              style={{
+                background:
+                  "conic-gradient(from 225deg at 100% 100%, #355872 90deg, #7AAACE 90deg 180deg, #FFFFFF 180deg)",
+              }}
+            >
+              {/* Subtle inner shadow effect on fold */}
+              <div className="absolute inset-0 bg-black/10"></div>
+            </div>
+
+            {/* Highlight Accent */}
+            <div className="absolute top-1 right-1 w-2.5 h-2.5 bg-[#7AAACE] rounded-full shadow-md"></div>
           </div>
+
           <h1 className="text-2xl font-black text-[#355872] tracking-tighter">
-            doschoolwork
+            HisPDF
           </h1>
         </Link>
 
         {/* Right Side */}
         <div className="flex items-center gap-4">
-          {/* Trust Badge: Larger Font & Icon */}
           <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 bg-[#355872]/5 rounded-xl border border-[#355872]/10">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
             <span className="text-xs font-black uppercase tracking-wider text-[#355872]/80 mt-0.5">
@@ -38,7 +60,6 @@ export default function Header() {
 
           <div className="w-px h-5 bg-[#355872]/20 hidden sm:block"></div>
 
-          {/* Language Selector Button */}
           <button
             onClick={() => setIsLangOpen(true)}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[#355872]/70 hover:text-[#355872] hover:bg-white/50 transition-all font-black text-sm"
@@ -51,7 +72,6 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Language Selection Drawer */}
       <LanguageSheet isOpen={isLangOpen} onClose={() => setIsLangOpen(false)} />
     </header>
   );

@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   description: "Make scanned PDFs searchable and editable 100% locally.",
 };
 
+export function generateStaticParams() {
+  return [{ lang: "en" }, { lang: "ko" }];
+}
+
 export default function OCRPdfPage() {
   return <OCRPdfClient />;
 }

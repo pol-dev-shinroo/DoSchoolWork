@@ -7,6 +7,10 @@ export const metadata: Metadata = {
     "Convert Word documents to PDF securely and privately in your browser.",
 };
 
+export function generateStaticParams() {
+  return [{ lang: "en" }, { lang: "ko" }];
+}
+
 export default function WordToPdfPage() {
   return <WordToPdfClient />;
 }

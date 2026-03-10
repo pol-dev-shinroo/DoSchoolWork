@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   description: "Extract specific pages from your PDF assignments instantly.",
 };
 
+export function generateStaticParams() {
+  return [{ lang: "en" }, { lang: "ko" }];
+}
+
 export default function CropPage() {
   return <PdfCropClient />;
 }

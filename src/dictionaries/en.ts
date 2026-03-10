@@ -10,7 +10,7 @@ export const en = {
     freeNoLogin: "Free, No Login",
   },
   sidebar: {
-    pdf: "PDF",
+    pdf: "Organize", // Updated from "PDF"
     img: "IMG",
     convert: "Convert",
     mp3: "Audio",
@@ -20,10 +20,10 @@ export const en = {
   // PAGES
   // ==========================================
   home: {
-    heroTitle: "Do School Work.",
-    heroSubtitle1: "The ultimate toolbox for your assignments.",
-    heroSubtitle2:
-      "100% private, browser-based processing. Zero server uploads.",
+    heroTitle: "HisPDF.",
+    featureFree: "Free",
+    featureNoLogin: "No sign-up or subscription",
+    featureLocal: "Privacy secured. Zero server uploads.",
     comingSoonTitle: "More Tools Soon",
     comingSoonDesc: "Compress, Protect, Edit",
   },
@@ -34,12 +34,12 @@ export const en = {
   pdfMerge: {
     title: "Merge PDF.",
     description:
-      "Combine multiple files into one seamless document. Perfect for grouping separate assignment pages.",
+      "Combine multiple files into one seamless document. Perfect for grouping separate pages.",
   },
   pdfCrop: {
     title: "Crop PDF.",
     description:
-      "Extract specific pages or cut down margins from your assignments instantly.",
+      "Extract specific pages or cut down margins from your documents instantly.",
   },
 
   // ==========================================
@@ -52,12 +52,12 @@ export const en = {
   },
   imageResize: {
     title: "Resize Image.",
-    description: "Perfect your aspect ratios for any assignment in one click.",
+    description: "Perfect your aspect ratios for any document in one click.",
   },
   imageRotate: {
     title: "Rotate Image.",
     description:
-      "Fix upside-down phone scans instantly. No server uploads, 100% private.",
+      "Fix upside-down phone scans instantly. No server uploads, completely private.",
   },
 
   // ==========================================
@@ -66,24 +66,34 @@ export const en = {
   pdfToWord: {
     title: "PDF to Word.",
     description:
-      "Need to edit a reading assignment? Extract the text from your PDF into a fully editable Word document in seconds.",
+      "Need to edit a document? Extract the text from your PDF into a fully editable Word document in seconds.",
   },
   ocrPdf: {
     title: "OCR PDF.",
     description:
       "Make scanned documents searchable. We'll recognize the text so you can highlight, copy, and search it.",
   },
-  jpgToPdf: {
-    title: "JPG to PDF.",
+  imageToPdf: {
+    title: "Image to PDF.",
     description:
-      "Turn your photos into a professional PDF. Perfect for submitting handwritten homework or scanned notes.",
+      "Convert JPG, PNG, WEBP to PDF. Combine images. Private local processing.",
   },
   wordToPdf: {
     title: "Word to PDF.",
     description:
-      "Lock your essays into secure PDFs. 100% private, processed directly in your browser.",
+      "Lock your text files into secure PDFs. Completely private, processed directly in your browser.",
   },
-  // TOOLS: AUDIO
+  epubToPdf: {
+    title: "EPUB to PDF.",
+    description:
+      "Convert your EPUB ebooks into readable PDF documents. Completely private, processed directly in your browser.",
+    workspaceTitle: "Upload EPUB File",
+    workspaceDesc: "Drop your .epub file here to start the conversion process.",
+    workspaceButton: "Select EPUB File",
+    convertButton: "Convert to PDF",
+  },
+  // ==========================================
+  // TOOLS: AUDIO (Hidden for MVP, saved for later)
   // ==========================================
   mp3ToPdf: {
     title: "MP3 to PDF.",

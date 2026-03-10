@@ -7,6 +7,10 @@ export const metadata: Metadata = {
     "Extract text from PDFs and convert them to editable Word documents locally.",
 };
 
+export function generateStaticParams() {
+  return [{ lang: "en" }, { lang: "ko" }];
+}
+
 export default function PdfToWordPage() {
   return <PdfToWordClient />;
 }

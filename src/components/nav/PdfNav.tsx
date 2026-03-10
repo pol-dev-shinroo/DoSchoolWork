@@ -1,14 +1,31 @@
+"use client";
+
 import Link from "next/link";
 import { Scissors, FileStack } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function PdfNav({ active }: { active: string }) {
+  // 1. Grab 'locale' to fix the 404 routing!
+  const { locale } = useLanguage();
+
+  // 2. Reordered: Merge is now first!
   const links = [
-    { id: "crop", label: "CROP", icon: Scissors, href: "/pdf/crop" },
-    { id: "merge", label: "MERGE", icon: FileStack, href: "/pdf/merge" },
+    {
+      id: "merge",
+      label: "MERGE",
+      icon: FileStack,
+      href: `/${locale}/pdf/merge`,
+    },
+    {
+      id: "crop",
+      label: "CROP",
+      icon: Scissors,
+      href: `/${locale}/pdf/crop`,
+    },
   ];
 
   return (
-    <div className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-[#355872]/10 shadow-sm">
+    <div className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-[#355872]/10 shadow-sm overflow-x-auto max-w-full scrollbar-hide">
       {links.map((link) => (
         <Link
           key={link.id}

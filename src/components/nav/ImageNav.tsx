@@ -1,11 +1,33 @@
+"use client";
+
 import Link from "next/link";
-import { RotateCw, Crop, Maximize } from "lucide-react";
+import { RotateCw, Crop, Maximize, FileImage } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function ImageNav({ active }: { active: string }) {
+  const { locale } = useLanguage();
+
   const links = [
-    { id: "rotate", label: "ROTATE", icon: RotateCw, href: "/image/rotate" },
-    { id: "crop", label: "CROP", icon: Crop, href: "/image/crop" },
-    { id: "resize", label: "RESIZE", icon: Maximize, href: "/image/resize" },
+    // 1. Added the Image to PDF tool here!
+    {
+      id: "image-to-pdf",
+      label: "IMAGE TO PDF",
+      icon: FileImage,
+      href: `/${locale}/image/image-to-pdf`,
+    },
+    {
+      id: "rotate",
+      label: "ROTATE",
+      icon: RotateCw,
+      href: `/${locale}/image/rotate`,
+    },
+    { id: "crop", label: "CROP", icon: Crop, href: `/${locale}/image/crop` },
+    {
+      id: "resize",
+      label: "RESIZE",
+      icon: Maximize,
+      href: `/${locale}/image/resize`,
+    },
   ];
 
   return (

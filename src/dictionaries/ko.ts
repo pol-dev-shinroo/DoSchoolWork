@@ -12,7 +12,7 @@ export const ko: Dictionary = {
     freeNoLogin: "무료, 로그인 없음",
   },
   sidebar: {
-    pdf: "PDF",
+    pdf: "정리", // Updated from "PDF"
     img: "이미지",
     convert: "변환",
     mp3: "오디오",
@@ -22,9 +22,10 @@ export const ko: Dictionary = {
   // PAGES
   // ==========================================
   home: {
-    heroTitle: "학교 과제를 쉽게.",
-    heroSubtitle1: "과제를 위한 궁극의 툴박스.",
-    heroSubtitle2: "100% 개인정보 보호, 브라우저 기반 처리. 서버 업로드 제로.",
+    heroTitle: "HisPDF.",
+    featureFree: "무료",
+    featureNoLogin: "가입 및 구독 없음",
+    featureLocal: "개인정보 보호. 서버 업로드 제로.",
     comingSoonTitle: "더 많은 도구 준비중",
     comingSoonDesc: "압축, 보호, 편집",
   },
@@ -73,15 +74,23 @@ export const ko: Dictionary = {
     description:
       "스캔된 문서를 검색 가능하게 만듭니다. 텍스트를 인식하여 강조, 복사 및 검색이 가능해집니다.",
   },
-  jpgToPdf: {
-    title: "JPG를 PDF로.",
-    description:
-      "사진을 전문적인 PDF로 변환하세요. 손글씨 숙제나 스캔한 노트를 제출할 때 완벽합니다.",
+  imageToPdf: {
+    title: "이미지 PDF 변환.",
+    description: "JPG, PNG, WEBP 등 이미지 병합. 안전한 로컬 처리.",
   },
   wordToPdf: {
     title: "Word를 PDF로.",
     description:
       "에세이를 안전한 PDF로 고정하세요. 100% 개인정보 보호, 브라우저에서 직접 처리됩니다.",
+  },
+  epubToPdf: {
+    title: "EPUB를 PDF로.",
+    description:
+      "EPUB 전자책을 읽기 편한 PDF 문서로 변환하세요. 서버 업로드 없이 브라우저에서 100% 로컬로 안전하게 처리됩니다.",
+    workspaceTitle: "EPUB 파일 업로드",
+    workspaceDesc: ".epub 파일을 여기에 드롭하여 변환을 시작하세요.",
+    workspaceButton: "EPUB 파일 선택",
+    convertButton: "PDF로 변환하기",
   },
   // TOOLS: AUDIO
   // ==========================================

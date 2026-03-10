@@ -7,6 +7,10 @@ export const metadata: Metadata = {
     "Fix upside-down scans instantly with our private, browser-based tool.",
 };
 
+export function generateStaticParams() {
+  return [{ lang: "en" }, { lang: "ko" }];
+}
+
 export default function RotatePage() {
   return <ImageRotateClient />;
 }

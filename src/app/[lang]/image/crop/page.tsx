@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   description: "Crop backgrounds out of assignment photos instantly.",
 };
 
+export function generateStaticParams() {
+  return [{ lang: "en" }, { lang: "ko" }];
+}
+
 export default function ImageCropPage() {
   return <ImageCropClient />;
 }

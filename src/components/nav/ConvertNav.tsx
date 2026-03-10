@@ -1,33 +1,43 @@
+"use client";
+
 import Link from "next/link";
-import { FileImage, FileText, FileType, FileSearch } from "lucide-react";
+import { FileText, FileType, FileSearch, BookUp } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function ConvertNav({ active }: { active: string }) {
-  // Reordered list as per your request
+  const { locale } = useLanguage();
+
+  // Reordered: OCR PDF is now first!
   const links = [
-    {
-      id: "pdf-to-word",
-      label: "PDF TO WORD",
-      icon: FileType,
-      href: "/convert/pdf-to-word",
-    },
     {
       id: "ocr-pdf",
       label: "OCR PDF",
       icon: FileSearch,
-      href: "/convert/ocr-pdf",
+      href: `/${locale}/convert/ocr-pdf`,
     },
     {
-      id: "jpg-to-pdf",
-      label: "JPG TO PDF",
-      icon: FileImage,
-      href: "/convert/jpg-to-pdf",
+      id: "pdf-to-word",
+      label: "PDF TO WORD",
+      icon: FileType,
+      href: `/${locale}/convert/pdf-to-word`,
     },
+    {
+      id: "epub-to-pdf",
+      label: "EPUB TO PDF",
+      icon: BookUp,
+      href: `/${locale}/convert/epub-to-pdf`,
+    },
+    // ==========================================
+    // HIDDEN FOR MVP: Word to PDF
+    // ==========================================
+    /*
     {
       id: "word-to-pdf",
       label: "WORD TO PDF",
       icon: FileText,
-      href: "/convert/word-to-pdf",
+      href: `/${locale}/convert/word-to-pdf`,
     },
+    */
   ];
 
   return (

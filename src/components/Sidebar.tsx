@@ -8,46 +8,40 @@ import {
   Image as ImageIcon,
   Sparkles,
   ArrowRightLeft,
-  FileAudio, // 1. Added FileAudio icon
 } from "lucide-react";
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
+  // 1. Reordered: Convert is now first!
   const navItems = [
     {
+      label: t.sidebar.convert,
+      href: `/${locale}/convert/ocr-pdf`,
+      pattern: "/convert",
+      icon: ArrowRightLeft,
+    },
+    {
       label: t.sidebar.pdf,
-      href: "/pdf/crop",
+      href: `/${locale}/pdf/merge`,
       pattern: "/pdf",
       icon: FileText,
     },
     {
       label: t.sidebar.img,
-      href: "/image/rotate",
+      href: `/${locale}/image/image-to-pdf`, // <-- UPDATED URL
       pattern: "/image",
       icon: ImageIcon,
-    },
-    {
-      label: t.sidebar.convert,
-      href: "/convert/pdf-to-word",
-      pattern: "/convert",
-      icon: ArrowRightLeft,
-    },
-    // 2. Added the new MP3 Category
-    {
-      label: t.sidebar.mp3,
-      href: "/mp3/transcribe",
-      pattern: "/mp3",
-      icon: FileAudio,
     },
   ];
 
   return (
     <aside className="fixed left-0 top-20 bottom-0 w-24 bg-white/50 backdrop-blur-sm border-r border-[#355872]/10 flex flex-col items-center py-10 gap-8 z-40 hidden md:flex">
       {navItems.map((item) => {
-        const isInCategory = pathname.startsWith(item.pattern);
+        const isInCategory = pathname.includes(item.pattern);
         const Icon = item.icon;
+
         const finalHref = isInCategory ? pathname : item.href;
 
         return (
@@ -56,12 +50,10 @@ export default function Sidebar() {
             href={finalHref}
             className="group relative flex flex-col items-center gap-2"
           >
-            {/* Active Indicator Line */}
             {isInCategory && (
               <div className="absolute -left-12 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#355872] rounded-r-full animate-in slide-in-from-left-full duration-300" />
             )}
 
-            {/* Icon Container */}
             <div
               className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 ${
                 isInCategory
@@ -76,7 +68,6 @@ export default function Sidebar() {
               />
             </div>
 
-            {/* Label (Dynamic Translation) */}
             <span
               className={`text-[10px] font-black uppercase tracking-widest transition-colors ${
                 isInCategory ? "text-[#355872]" : "text-[#355872]/40"
@@ -88,7 +79,6 @@ export default function Sidebar() {
         );
       })}
 
-      {/* Coming Soon Section */}
       <div className="mt-auto mb-4 flex flex-col items-center gap-2 opacity-30 cursor-not-allowed">
         <div className="w-14 h-14 bg-[#F7F8F0] border border-[#355872]/5 rounded-2xl flex items-center justify-center">
           <Sparkles className="text-[#355872] w-6 h-6" />
