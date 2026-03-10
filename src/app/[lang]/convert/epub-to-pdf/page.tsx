@@ -17,6 +17,13 @@ export async function generateMetadata({
   return {
     title: `${t.epubToPdf.title} | HisPDF`,
     description: t.epubToPdf.description,
+    alternates: {
+      canonical: `https://hispdf.com/${lang}/convert/epub-to-pdf`,
+      languages: {
+        en: "https://hispdf.com/en/convert/epub-to-pdf",
+        ko: "https://hispdf.com/ko/convert/epub-to-pdf",
+      },
+    },
   };
 }
 

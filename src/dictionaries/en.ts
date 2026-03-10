@@ -10,7 +10,7 @@ export const en = {
     freeNoLogin: "Free, No Login",
   },
   sidebar: {
-    pdf: "Organize", // Updated from "PDF"
+    pdf: "Organize",
     img: "IMG",
     convert: "Convert",
     mp3: "Audio",
@@ -20,7 +20,7 @@ export const en = {
   // PAGES
   // ==========================================
   home: {
-    heroTitle: "HisPDF.",
+    heroTitle: "HisPDF",
     featureFree: "Free",
     featureNoLogin: "No sign-up or subscription",
     featureLocal: "Privacy secured. Zero server uploads.",
@@ -32,76 +32,77 @@ export const en = {
   // TOOLS: PDF
   // ==========================================
   pdfMerge: {
-    title: "Merge PDF.",
+    title: "Merge PDF",
     description:
-      "Combine multiple files into one seamless document. Perfect for grouping separate pages.",
+      "Combine multiple PDF files into a single document. Reorder pages and merge PDFs directly in your browser.",
   },
   pdfCrop: {
-    title: "Crop PDF.",
+    title: "Crop PDF",
     description:
-      "Extract specific pages or cut down margins from your documents instantly.",
+      "Crop PDF pages, remove margins, and extract specific sections from your PDF documents.",
   },
 
   // ==========================================
   // TOOLS: IMAGE
   // ==========================================
   imageCrop: {
-    title: "Crop Image.",
+    title: "Crop Image",
     description:
-      "Cut out the unnecessary background from your photos to make them look professional.",
+      "Crop image files and remove backgrounds. Supports JPG, PNG, and WEBP formats.",
   },
   imageResize: {
-    title: "Resize Image.",
-    description: "Perfect your aspect ratios for any document in one click.",
+    title: "Resize Image",
+    description:
+      "Resize image dimensions and adjust aspect ratios for documents and web use.",
   },
   imageRotate: {
-    title: "Rotate Image.",
+    title: "Rotate Image",
     description:
-      "Fix upside-down phone scans instantly. No server uploads, completely private.",
+      "Rotate images and fix the orientation of scanned documents locally on your device.",
   },
 
   // ==========================================
   // TOOLS: CONVERT
   // ==========================================
   pdfToWord: {
-    title: "PDF to Word.",
+    title: "PDF to Word",
     description:
-      "Need to edit a document? Extract the text from your PDF into a fully editable Word document in seconds.",
+      "Convert PDF to Word. Extract text from your PDF into an editable Word document format.",
   },
   ocrPdf: {
-    title: "OCR PDF.",
+    title: "OCR PDF",
     description:
-      "Make scanned documents searchable. We'll recognize the text so you can highlight, copy, and search it.",
+      "Make scanned PDF documents searchable. Apply Optical Character Recognition (OCR) to copy and highlight text.",
   },
   imageToPdf: {
-    title: "Image to PDF.",
+    title: "Image to PDF",
     description:
-      "Convert JPG, PNG, WEBP to PDF. Combine images. Private local processing.",
+      "Convert JPG, PNG, and WEBP images to PDF. Combine multiple images into a standard A4 PDF document.",
   },
   wordToPdf: {
-    title: "Word to PDF.",
+    title: "Word to PDF",
     description:
-      "Lock your text files into secure PDFs. Completely private, processed directly in your browser.",
+      "Convert Word documents to PDF format. Secure your text files for printing and sharing.",
   },
   epubToPdf: {
-    title: "EPUB to PDF.",
+    title: "EPUB to PDF",
     description:
-      "Convert your EPUB ebooks into readable PDF documents. Completely private, processed directly in your browser.",
+      "Convert EPUB ebooks to PDF. Format your digital books into print-ready PDF documents with accurate pagination.",
     workspaceTitle: "Upload EPUB File",
-    workspaceDesc: "Drop your .epub file here to start the conversion process.",
+    workspaceDesc: "Select an .epub file to begin the conversion process.",
     workspaceButton: "Select EPUB File",
     convertButton: "Convert to PDF",
   },
+
   // ==========================================
-  // TOOLS: AUDIO (Hidden for MVP, saved for later)
+  // TOOLS: AUDIO (Hidden for MVP)
   // ==========================================
   mp3ToPdf: {
-    title: "MP3 to PDF.",
+    title: "MP3 to PDF",
     description:
-      "Transcribe your audio lectures and voice notes into readable PDF study guides instantly.",
+      "Transcribe MP3 audio files to text. Convert lectures and voice notes into readable PDF documents.",
     workspaceTitle: "Upload Audio File",
-    workspaceDesc:
-      "Drop your .mp3 or .wav file here to start the transcription process.",
+    workspaceDesc: "Select an .mp3 or .wav file to begin transcription.",
     workspaceButton: "Select Audio File",
   },
 };

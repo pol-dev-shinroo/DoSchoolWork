@@ -1,11 +1,31 @@
 import type { Metadata } from "next";
 import WordToPdfClient from "./WordToPdfClient";
+import { en } from "@/dictionaries/en";
+import { ko } from "@/dictionaries/ko";
 
-export const metadata: Metadata = {
-  title: "Free Word to PDF | DoSchoolWork",
-  description:
-    "Convert Word documents to PDF securely and privately in your browser.",
-};
+type Locale = "en" | "ko";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: Locale }>;
+}): Promise<Metadata> {
+  const resolvedParams = await params;
+  const lang = resolvedParams.lang || "en";
+  const t = lang === "ko" ? ko : en;
+
+  return {
+    title: `${t.wordToPdf.title} | HisPDF`,
+    description: t.wordToPdf.description,
+    alternates: {
+      canonical: `https://hispdf.com/${lang}/convert/word-to-pdf`,
+      languages: {
+        en: "https://hispdf.com/en/convert/word-to-pdf",
+        ko: "https://hispdf.com/ko/convert/word-to-pdf",
+      },
+    },
+  };
+}
 
 export function generateStaticParams() {
   return [{ lang: "en" }, { lang: "ko" }];
