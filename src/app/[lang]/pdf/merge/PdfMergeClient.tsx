@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { PDFDocument } from "pdf-lib";
 import PageShell from "@/components/layouts/PageShell";
 import PdfNav from "@/components/nav/PdfNav";
 import { useLanguage } from "@/context/LanguageContext";
+import { useProcessingWarning } from "@/hooks/useProcessingWarning";
 
 import PdfMergeUpload from "@/components/ui/PdfMergeUpload";
 import PdfMergeWorkspace from "@/components/ui/PdfMergeWorkspace";
@@ -22,24 +23,9 @@ export default function PdfMergeClient() {
   const [files, setFiles] = useState<FileItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // ==========================================
-  // TAB CLOSE PROTECTION
-  // ==========================================
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isProcessing) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
+  // Tab Close Protection Hook
+  useProcessingWarning(isProcessing);
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isProcessing]);
-
-  // ==========================================
-  // THE PAGE-COUNT SCANNER + STRICT VALIDATION
-  // ==========================================
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     if (selectedFiles.length === 0) return;

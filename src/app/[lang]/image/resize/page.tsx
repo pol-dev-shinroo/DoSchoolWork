@@ -5,9 +5,12 @@ import { ko } from "@/dictionaries/ko";
 import { zh } from "@/dictionaries/zh";
 import { de } from "@/dictionaries/de";
 import { ru } from "@/dictionaries/ru";
+import { el } from "@/dictionaries/el";
+import { km } from "@/dictionaries/km";
+import { id } from "@/dictionaries/id";
 
-type Locale = "en" | "ko" | "zh" | "de" | "ru";
-const dictionaries = { en, ko, zh, de, ru };
+type Locale = "en" | "ko" | "zh" | "de" | "ru" | "el" | "km" | "id";
+const dictionaries = { en, ko, zh, de, ru, el, km, id };
 
 export async function generateMetadata({
   params,
@@ -29,19 +32,12 @@ export async function generateMetadata({
         zh: "https://hispdf.com/zh/image/resize",
         de: "https://hispdf.com/de/image/resize",
         ru: "https://hispdf.com/ru/image/resize",
+        el: "https://hispdf.com/el/image/resize",
+        km: "https://hispdf.com/km/image/resize",
+        id: "https://hispdf.com/id/image/resize",
       },
     },
   };
-}
-
-export function generateStaticParams() {
-  return [
-    { lang: "en" },
-    { lang: "ko" },
-    { lang: "zh" },
-    { lang: "de" },
-    { lang: "ru" },
-  ];
 }
 
 export default function ResizePage() {

@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { PDFDocument, PageSizes } from "pdf-lib";
 import PageShell from "@/components/layouts/PageShell";
 import ImageNav from "@/components/nav/ImageNav";
 import { useLanguage } from "@/context/LanguageContext";
+import { useProcessingWarning } from "@/hooks/useProcessingWarning";
 
 import ImageToPdfUpload from "@/components/ui/ImageToPdfUpload";
 import ImageToPdfWorkspace from "@/components/ui/ImageToPdfWorkspace";
@@ -21,24 +22,9 @@ export default function ImageToPdfClient() {
   const [images, setImages] = useState<ImageItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // ==========================================
-  // TAB CLOSE PROTECTION
-  // ==========================================
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isProcessing) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
+  // Tab Close Protection Hook
+  useProcessingWarning(isProcessing);
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isProcessing]);
-
-  // ==========================================
-  // WRONG FILE ALERT & FILTERING
-  // ==========================================
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     if (selectedFiles.length === 0) return;

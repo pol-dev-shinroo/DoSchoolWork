@@ -13,13 +13,16 @@ export default function LanguageSheet({
 }) {
   const { locale, setLocale } = useLanguage();
 
-  // Expanded to 5 languages, matching your sleek "Symbol" design instead of emojis
+  // Now fully expanded to 8 languages!
   const languages = [
     { code: "en", symbol: "US", label: "English", desc: "US English" },
     { code: "ko", symbol: "KR", label: "한국어", desc: "Korean" },
     { code: "zh", symbol: "CN", label: "中文", desc: "Chinese" },
     { code: "de", symbol: "DE", label: "Deutsch", desc: "German" },
     { code: "ru", symbol: "RU", label: "Русский", desc: "Russian" },
+    { code: "el", symbol: "GR", label: "Ελληνικά", desc: "Greek" },
+    { code: "km", symbol: "KH", label: "ខ្មែរ", desc: "Khmer" },
+    { code: "id", symbol: "ID", label: "Bahasa Indonesia", desc: "Indonesian" },
   ];
 
   if (!isOpen) return null;

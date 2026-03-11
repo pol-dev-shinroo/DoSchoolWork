@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import PageShell from "@/components/layouts/PageShell";
 import ImageNav from "@/components/nav/ImageNav";
 import { useLanguage } from "@/context/LanguageContext";
 import { Area } from "react-easy-crop";
+import { useProcessingWarning } from "@/hooks/useProcessingWarning";
 
-// Import our new "Dumb" UI Components
 import ImageResizeUpload from "@/components/ui/ImageResizeUpload";
 import ImageResizeWorkspace from "@/components/ui/ImageResizeWorkspace";
 
@@ -20,7 +20,6 @@ const RATIOS = [
 export default function ImageResizeClient() {
   const { t } = useLanguage();
 
-  // --- 1. STATE MANAGEMENT ---
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [activeRatio, setActiveRatio] = useState(RATIOS[0]);
@@ -31,24 +30,9 @@ export default function ImageResizeClient() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // ==========================================
-  // TAB CLOSE PROTECTION
-  // ==========================================
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isProcessing) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
+  // Tab Close Protection Hook
+  useProcessingWarning(isProcessing);
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isProcessing]);
-
-  // ==========================================
-  // WRONG FILE ALERT
-  // ==========================================
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -118,14 +102,12 @@ export default function ImageResizeClient() {
     };
   };
 
-  // --- 3. RENDER ---
   return (
     <PageShell
       title={t.imageResize.title}
       description={t.imageResize.description}
       navToggle={<ImageNav active="resize" />}
     >
-      {/* Hidden Canvas for Processing */}
       <canvas ref={canvasRef} className="hidden" />
 
       <div className="max-w-2xl mx-auto p-10 border-4 border-double border-[#355872]/20 rounded-[3rem] bg-white shadow-xl shadow-[#355872]/5 mt-8 transition-all">

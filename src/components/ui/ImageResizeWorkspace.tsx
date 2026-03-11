@@ -74,9 +74,23 @@ export default function ImageResizeWorkspace({
       processBtn: "Экспорт как",
       defaultProgress: "Обработка...",
     },
+    el: {
+      trendy: "ΤΑΣΗ",
+      processBtn: "Εξαγωγή ως",
+      defaultProgress: "Επεξεργασία...",
+    },
+    km: {
+      trendy: "ពេញនិយម",
+      processBtn: "នាំចេញជា",
+      defaultProgress: "កំពុងដំណើរការ...",
+    },
+    id: {
+      trendy: "TREN",
+      processBtn: "Ekspor sebagai",
+      defaultProgress: "Memproses...",
+    },
   };
 
-  // Localized ratio labels mapping
   const ratioLabels: Record<string, Record<string, string>> = {
     "4:5": {
       en: "Social Portrait",
@@ -84,6 +98,9 @@ export default function ImageResizeWorkspace({
       zh: "社交肖像",
       de: "Soziales Porträt",
       ru: "Социальный портрет",
+      el: "Κοινωνικό Πορτρέτο",
+      km: "រូបភាពសង្គម",
+      id: "Potret Sosial",
     },
     "1:1": {
       en: "Square / Profile",
@@ -91,6 +108,9 @@ export default function ImageResizeWorkspace({
       zh: "正方形 / 个人资料",
       de: "Quadrat / Profil",
       ru: "Квадрат / Профиль",
+      el: "Τετράγωνο / Προφίλ",
+      km: "ការ៉េ / ប្រវត្តិរូប",
+      id: "Persegi / Profil",
     },
     "16:9": {
       en: "Presentation",
@@ -98,6 +118,9 @@ export default function ImageResizeWorkspace({
       zh: "演示文稿",
       de: "Präsentation",
       ru: "Презентация",
+      el: "Παρουσίαση",
+      km: "បទបង្ហាញ",
+      id: "Presentasi",
     },
     "9:16": {
       en: "Story / Reel",
@@ -105,6 +128,9 @@ export default function ImageResizeWorkspace({
       zh: "快拍 / 短视频",
       de: "Story / Reel",
       ru: "Истории / Reels",
+      el: "Ιστορία / Reel",
+      km: "រឿង / វីដេអូខ្លី",
+      id: "Cerita / Reel",
     },
   };
 

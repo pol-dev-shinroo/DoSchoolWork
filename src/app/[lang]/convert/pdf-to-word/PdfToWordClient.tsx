@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Document,
   Packer,
@@ -15,6 +15,7 @@ import { useLanguage } from "@/context/LanguageContext";
 
 import PdfToWordUpload from "@/components/ui/PdfToWordUpload";
 import PdfToWordWorkspace from "@/components/ui/PdfToWordWorkspace";
+import { useProcessingWarning } from "@/hooks/useProcessingWarning"; // <-- THE NEW HOOK
 
 // ==========================================
 // 1. STRICT INTERFACES & TYPES
@@ -813,17 +814,7 @@ export default function PdfToWordClient() {
   // ==========================================
   // TAB CLOSE PROTECTION
   // ==========================================
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isProcessing) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isProcessing]);
+  useProcessingWarning(isProcessing);
 
   // ==========================================
   // WRONG FILE ALERT

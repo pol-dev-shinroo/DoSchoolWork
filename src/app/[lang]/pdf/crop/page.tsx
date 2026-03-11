@@ -40,19 +40,6 @@ export async function generateMetadata({
   };
 }
 
-export function generateStaticParams() {
-  return [
-    { lang: "en" },
-    { lang: "ko" },
-    { lang: "zh" },
-    { lang: "de" },
-    { lang: "ru" },
-    { lang: "el" },
-    { lang: "km" },
-    { lang: "id" },
-  ];
-}
-
 export default function CropPage() {
   return <PdfCropClient />;
 }

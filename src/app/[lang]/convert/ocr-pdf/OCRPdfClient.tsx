@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { PDFDocument } from "pdf-lib";
 import Tesseract from "tesseract.js";
 import PageShell from "@/components/layouts/PageShell";
 import ConvertNav from "@/components/nav/ConvertNav";
 import { useLanguage } from "@/context/LanguageContext";
 
-// Import Dumb UI components
 import OcrPdfUpload from "@/components/ui/OcrPdfUpload";
 import OcrPdfWorkspace from "@/components/ui/OcrPdfWorkspace";
+import { useProcessingWarning } from "@/hooks/useProcessingWarning"; // <-- THE NEW HOOK
 
 interface TesseractPdfData {
   pdf?: number[];
@@ -23,33 +23,23 @@ export default function OCRPdfClient() {
   const [progressStatus, setProgressStatus] = useState("");
 
   // ==========================================
-  // STEP 2: TAB CLOSE PROTECTION
-  // Warns the user if they try to close the tab while processing
+  // TAB CLOSE PROTECTION
   // ==========================================
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isProcessing) {
-        e.preventDefault();
-        e.returnValue = ""; // Required for Chrome to show the warning dialog
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isProcessing]);
+  useProcessingWarning(isProcessing);
 
   // ==========================================
-  // STEP 2: WRONG FILE ALERT
-  // Blocks non-PDF files from being uploaded
+  // WRONG FILE ALERT
   // ==========================================
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    // Strict validation check
-    if (selectedFile.type !== "application/pdf") {
+    if (
+      selectedFile.type !== "application/pdf" &&
+      !selectedFile.name.toLowerCase().endsWith(".pdf")
+    ) {
       alert("Invalid file type. Please upload a valid PDF document.");
-      e.target.value = ""; // Reset the input
+      e.target.value = "";
       return;
     }
 

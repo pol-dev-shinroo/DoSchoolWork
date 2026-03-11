@@ -22,7 +22,7 @@ export async function generateMetadata({
   };
 }
 
-// THE FIX: Expand static params here too
+// THE FIX: Expanded to all 8 languages!
 export function generateStaticParams() {
   return [
     { lang: "en" },
@@ -30,6 +30,9 @@ export function generateStaticParams() {
     { lang: "zh" },
     { lang: "de" },
     { lang: "ru" },
+    { lang: "el" },
+    { lang: "km" },
+    { lang: "id" },
   ];
 }
 

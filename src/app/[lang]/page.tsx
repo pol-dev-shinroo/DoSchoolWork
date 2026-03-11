@@ -18,7 +18,7 @@ export async function generateMetadata({
   };
 }
 
-// THE FIX: Tell Next.js to build all 5 languages!
+// THE FIX: Tell Next.js to build all 8 languages!
 export function generateStaticParams() {
   return [
     { lang: "en" },
@@ -26,6 +26,9 @@ export function generateStaticParams() {
     { lang: "zh" },
     { lang: "de" },
     { lang: "ru" },
+    { lang: "el" },
+    { lang: "km" },
+    { lang: "id" },
   ];
 }
 

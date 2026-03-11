@@ -18,6 +18,7 @@ export default function LanguageToggle({ onClick }: LanguageToggleProps) {
     ru: "RUS",
     el: "GRE",
     km: "KHM",
+    id: "IDN",
   };
 
   return (

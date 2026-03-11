@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PageShell from "@/components/layouts/PageShell";
 import ConvertNav from "@/components/nav/ConvertNav";
 import { useLanguage } from "@/context/LanguageContext";
@@ -8,6 +8,7 @@ import ePub from "epubjs";
 
 import EpubToPdfUpload from "@/components/ui/EpubToPdfUpload";
 import EpubToPdfWorkspace from "@/components/ui/EpubToPdfWorkspace";
+import { useProcessingWarning } from "@/hooks/useProcessingWarning"; // <-- THE NEW HOOK
 
 export default function EpubToPdfClient() {
   const { t } = useLanguage();
@@ -17,19 +18,9 @@ export default function EpubToPdfClient() {
   const [progressStatus, setProgressStatus] = useState("");
 
   // ==========================================
-  // TAB CLOSE PROTECTION
+  // TAB CLOSE PROTECTION (Now just 1 line!)
   // ==========================================
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isProcessing) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isProcessing]);
+  useProcessingWarning(isProcessing);
 
   // ==========================================
   // WRONG FILE ALERT

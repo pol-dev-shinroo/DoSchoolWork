@@ -5,35 +5,47 @@ import { PDFDocument } from "pdf-lib";
 import PageShell from "@/components/layouts/PageShell";
 import PdfNav from "@/components/nav/PdfNav";
 import { useLanguage } from "@/context/LanguageContext";
+import { useProcessingWarning } from "@/hooks/useProcessingWarning";
 
-// Import our new Dumb UI components
 import PdfCropUpload from "@/components/ui/PdfCropUpload";
 import PdfCropWorkspace from "@/components/ui/PdfCropWorkspace";
 
 export default function PdfCropClient() {
   const { t } = useLanguage();
 
-  // --- 1. STATE ---
   const [file, setFile] = useState<File | null>(null);
   const [totalPages, setTotalPages] = useState<number | null>(null);
   const [pages, setPages] = useState({ start: 1, end: 1 });
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // --- 2. LOGIC ---
+  // Tab Close Protection Hook
+  useProcessingWarning(isProcessing);
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      try {
-        const arrayBuffer = await selectedFile.arrayBuffer();
-        const pdfDoc = await PDFDocument.load(arrayBuffer);
-        const count = pdfDoc.getPageCount();
-        setTotalPages(count);
-        setPages({ start: 1, end: count });
-      } catch (err) {
-        console.error("Error loading PDF info:", err);
-      }
+    if (!selectedFile) return;
+
+    if (selectedFile.type !== "application/pdf") {
+      alert("Invalid file type. Please upload a valid PDF document.");
+      e.target.value = "";
+      return;
     }
+
+    setFile(selectedFile);
+    try {
+      const arrayBuffer = await selectedFile.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(arrayBuffer);
+      const count = pdfDoc.getPageCount();
+      setTotalPages(count);
+      setPages({ start: 1, end: count });
+    } catch (err) {
+      console.error("Error loading PDF info:", err);
+      alert(
+        "Error loading PDF. The file may be corrupted or password protected.",
+      );
+      setFile(null);
+    }
+    e.target.value = "";
   };
 
   const handleClear = () => {
@@ -79,7 +91,7 @@ export default function PdfCropClient() {
       });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `DoSchoolWork_${file.name}`;
+      link.download = `Cropped_${file.name}`;
       link.click();
     } catch (error) {
       alert(
@@ -90,14 +102,12 @@ export default function PdfCropClient() {
     }
   };
 
-  // --- 3. VALIDATION ---
   const isInvalid =
     !totalPages ||
     pages.start < 1 ||
     pages.end > totalPages ||
     pages.start > pages.end;
 
-  // --- 4. RENDER ---
   return (
     <PageShell
       title={t.pdfCrop.title}

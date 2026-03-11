@@ -22,6 +22,9 @@ export default function ImageToPdfUpload({
       title: "Изображение в PDF",
       desc: "Выберите изображения для объединения",
     },
+    el: { title: "Εικόνα σε PDF", desc: "Επιλέξτε εικόνες για συνδυασμό" },
+    km: { title: "រូបភាពទៅ PDF", desc: "ជ្រើសរើសរូបភាពដើម្បីបញ្ចូលចូលគ្នា" },
+    id: { title: "Gambar ke PDF", desc: "Pilih gambar untuk digabungkan" },
   };
 
   const text = i18n[locale] || i18n.en;

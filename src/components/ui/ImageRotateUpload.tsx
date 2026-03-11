@@ -22,6 +22,9 @@ export default function ImageRotateUpload({
       title: "Загрузить изображение",
       desc: "Поддерживаются JPG, PNG, WebP",
     },
+    el: { title: "Ανεβάστε Εικόνα", desc: "Υποστηρίζονται JPG, PNG, WebP" },
+    km: { title: "ផ្ទុកឡើងរូបភាព", desc: "គាំទ្រ JPG, PNG, WebP" },
+    id: { title: "Unggah Gambar", desc: "Mendukung JPG, PNG, WebP" },
   };
 
   const text = i18n[locale] || i18n.en;

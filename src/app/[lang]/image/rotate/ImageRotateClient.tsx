@@ -1,18 +1,17 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import PageShell from "@/components/layouts/PageShell";
 import ImageNav from "@/components/nav/ImageNav";
 import { useLanguage } from "@/context/LanguageContext";
+import { useProcessingWarning } from "@/hooks/useProcessingWarning";
 
-// Import new Dumb UI components
 import ImageRotateUpload from "@/components/ui/ImageRotateUpload";
 import ImageRotateWorkspace from "@/components/ui/ImageRotateWorkspace";
 
 export default function ImageRotateClient() {
   const { t } = useLanguage();
 
-  // --- 1. STATE & REFS ---
   const [image, setImage] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [rotation, setRotation] = useState(0);
@@ -20,24 +19,9 @@ export default function ImageRotateClient() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // ==========================================
-  // TAB CLOSE PROTECTION
-  // ==========================================
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isProcessing) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
+  // Tab Close Protection Hook
+  useProcessingWarning(isProcessing);
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isProcessing]);
-
-  // ==========================================
-  // WRONG FILE ALERT
-  // ==========================================
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -112,7 +96,6 @@ export default function ImageRotateClient() {
     };
   };
 
-  // --- 3. RENDER ---
   return (
     <PageShell
       title={t.imageRotate.title}
