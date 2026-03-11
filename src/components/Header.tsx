@@ -10,6 +10,20 @@ export default function Header() {
   const [isLangOpen, setIsLangOpen] = useState(false);
   const { locale, t } = useLanguage();
 
+  // Dynamically map all 5 languages for the toggle button
+  const displayMap: Record<string, { main: string; sub: string }> = {
+    en: { main: "US", sub: "EN" },
+    ko: { main: "KOR", sub: "KR" },
+    zh: { main: "CHN", sub: "CN" },
+    de: { main: "GER", sub: "DE" },
+    ru: { main: "RUS", sub: "RU" },
+    el: { main: "GRE", sub: "EL" },
+    km: { main: "KHM", sub: "KM" },
+    id: { main: "IDN", sub: "ID" }, // Bahasa Indonesia
+  };
+
+  const currentLangDisplay = displayMap[locale] || displayMap.en;
+
   return (
     <header className="fixed top-0 left-0 right-0 bg-[#F7F8F0]/80 backdrop-blur-md z-50 border-b border-[#355872]/10">
       <div className="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -65,8 +79,11 @@ export default function Header() {
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[#355872]/70 hover:text-[#355872] hover:bg-white/50 transition-all font-black text-sm"
           >
             <Globe className="w-4.5 h-4.5" />
-            <span className="uppercase mt-0.5">
-              {locale === "en" ? "ENG 🇺🇸" : "KOR 🇰🇷"}
+            <span className="uppercase flex items-center gap-1 mt-0.5">
+              <span>{currentLangDisplay.main}</span>
+              <span className="text-[10px] opacity-60 mt-0.5">
+                {currentLangDisplay.sub}
+              </span>
             </span>
           </button>
         </div>

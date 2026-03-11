@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Document,
   Packer,
@@ -333,8 +333,6 @@ async function extractWordsFromPdf(
       const rawFontName =
         (realFontObj ? realFontObj.fontFamily : textItem.fontName) || "";
 
-      // FIX 1: Run Regex on the clean font name so subset tags (like +B) don't create false positives,
-      // but real tags (like MalgunGothic-Bold) are caught!
       const rawCleanFontFamily = rawFontName.split("+").pop() || "Arial";
       const lowerCleanFont = rawCleanFontFamily.toLowerCase();
       const isRegexBold =
@@ -470,9 +468,6 @@ async function extractWordsFromPdf(
         }
       }
 
-      // FIX 2: Font Size Scaling for Optical Bold Detection
-      // Large fonts (like Titles > 14pt) naturally have more proportional white space in their boxes.
-      // So we dynamically lower the ink density requirement for large text!
       const textArea = w * h;
       const inkDensity = textArea > 0 ? darkCount / textArea : 0;
       const densityThreshold = fontSize > 14 ? 0.26 : 0.34;
@@ -815,9 +810,38 @@ export default function PdfToWordClient() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressStatus, setProgressStatus] = useState("");
 
+  // ==========================================
+  // TAB CLOSE PROTECTION
+  // ==========================================
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isProcessing) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isProcessing]);
+
+  // ==========================================
+  // WRONG FILE ALERT
+  // ==========================================
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) setFile(selectedFile);
+    if (!selectedFile) return;
+
+    const isPdf =
+      selectedFile.type === "application/pdf" ||
+      selectedFile.name.toLowerCase().endsWith(".pdf");
+    if (!isPdf) {
+      alert("Invalid file type. Please upload a valid PDF document.");
+      e.target.value = "";
+      return;
+    }
+
+    setFile(selectedFile);
   };
 
   const handleClear = () => {

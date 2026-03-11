@@ -5,14 +5,21 @@ import React, {
   useContext,
   useMemo,
   useEffect,
-  useCallback, // 1. Import useCallback
+  useCallback,
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { en } from "@/dictionaries/en";
-import { ko } from "@/dictionaries/ko";
-import { Dictionary } from "@/dictionaries/en";
 
-type Locale = "en" | "ko";
+// Import all 8 dictionaries
+import { en, Dictionary } from "@/dictionaries/en";
+import { ko } from "@/dictionaries/ko";
+import { zh } from "@/dictionaries/zh";
+import { de } from "@/dictionaries/de";
+import { ru } from "@/dictionaries/ru";
+import { el } from "@/dictionaries/el";
+import { km } from "@/dictionaries/km";
+import { id } from "@/dictionaries/id";
+
+export type Locale = "en" | "ko" | "zh" | "de" | "ru" | "el" | "km" | "id";
 
 interface LanguageContextType {
   locale: Locale;
@@ -28,15 +35,24 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Extract the current language directly from the URL
-  const locale: Locale = pathname?.startsWith("/ko") ? "ko" : "en";
+  const validLocales: Locale[] = [
+    "en",
+    "ko",
+    "zh",
+    "de",
+    "ru",
+    "el",
+    "km",
+    "id",
+  ];
 
-  // 2. Wrap setLocale in useCallback so the React Compiler can optimize it safely!
+  const urlSegment = pathname?.split("/")[1] as Locale;
+  const locale: Locale = validLocales.includes(urlSegment) ? urlSegment : "en";
+
   const setLocale = useCallback(
     (newLocale: Locale) => {
       if (locale === newLocale) return;
 
-      // Swap out the language chunk in the URL
       let newPath = pathname || "/";
       if (newPath.startsWith(`/${locale}`)) {
         newPath = newPath.replace(`/${locale}`, `/${newLocale}`);
@@ -48,23 +64,29 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
       router.push(newPath);
     },
-    [locale, pathname, router], // Dependencies for useCallback
+    [locale, pathname, router],
   );
 
-  // Update the HTML lang attribute for screen readers/SEO
   useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);
 
-  // 3. Add setLocale to the useMemo dependency array
-  const contextValue = useMemo(
-    () => ({
+  const contextValue = useMemo(() => {
+    let currentDictionary: Dictionary = en;
+    if (locale === "ko") currentDictionary = ko;
+    if (locale === "zh") currentDictionary = zh;
+    if (locale === "de") currentDictionary = de;
+    if (locale === "ru") currentDictionary = ru;
+    if (locale === "el") currentDictionary = el;
+    if (locale === "km") currentDictionary = km;
+    if (locale === "id") currentDictionary = id;
+
+    return {
       locale,
       setLocale,
-      t: locale === "en" ? en : ko,
-    }),
-    [locale, setLocale], // Dependencies match exactly what is inside the object!
-  );
+      t: currentDictionary,
+    };
+  }, [locale, setLocale]);
 
   return (
     <LanguageContext.Provider value={contextValue}>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PageShell from "@/components/layouts/PageShell";
 import ConvertNav from "@/components/nav/ConvertNav";
 import { useLanguage } from "@/context/LanguageContext";
@@ -16,9 +16,39 @@ export default function EpubToPdfClient() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressStatus, setProgressStatus] = useState("");
 
+  // ==========================================
+  // TAB CLOSE PROTECTION
+  // ==========================================
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isProcessing) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isProcessing]);
+
+  // ==========================================
+  // WRONG FILE ALERT
+  // ==========================================
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
+
+    // Check MIME type or file extension for EPUB
+    const isEpub =
+      selectedFile.type === "application/epub+zip" ||
+      selectedFile.name.toLowerCase().endsWith(".epub");
+
+    if (!isEpub) {
+      alert("Invalid file type. Please upload a valid EPUB document.");
+      e.target.value = "";
+      return;
+    }
+
     setEpubFile(selectedFile);
     e.target.value = "";
   };
@@ -118,10 +148,6 @@ export default function EpubToPdfClient() {
       const spineItems = spine.spineItems;
 
       for (let i = 0; i < spineItems.length; i++) {
-        // ==========================================
-        // THE PERCENTAGE FIX
-        // Calculate and display a clean 0-100% value
-        // ==========================================
         const percent = Math.round(((i + 1) / spineItems.length) * 100);
         setProgressStatus(`Processing... ${percent}%`);
 

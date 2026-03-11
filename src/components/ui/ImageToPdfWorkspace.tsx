@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   Download,
@@ -7,6 +9,7 @@ import {
   Plus,
   Loader2,
 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ImageItem {
   id: string;
@@ -31,6 +34,21 @@ export default function ImageToPdfWorkspace({
   onMove,
   onConvert,
 }: ImageToPdfWorkspaceProps) {
+  const { locale } = useLanguage();
+
+  const i18n = {
+    en: { addMore: "Add More", downloadBtn: "Download PDF" },
+    ko: { addMore: "추가하기", downloadBtn: "PDF 다운로드" },
+    zh: { addMore: "添加更多", downloadBtn: "下载 PDF" },
+    de: { addMore: "Mehr hinzufügen", downloadBtn: "PDF herunterladen" },
+    ru: { addMore: "Добавить еще", downloadBtn: "Скачать PDF" },
+    el: { addMore: "Προσθήκη Περισσότερων", downloadBtn: "Λήψη PDF" },
+    km: { addMore: "បន្ថែមទៀត", downloadBtn: "ទាញយក PDF" },
+    id: { addMore: "Tambah Lagi", downloadBtn: "Unduh PDF" },
+  };
+
+  const text = i18n[locale] || i18n.en;
+
   return (
     <div className="flex flex-col gap-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -86,13 +104,13 @@ export default function ImageToPdfWorkspace({
           <input
             type="file"
             multiple
-            accept="image/*" // THE FIX: This now allows WEBP, BMP, GIF, etc!
+            accept="image/*"
             onChange={onFileChange}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
           />
           <Plus className="w-8 h-8 text-[#355872]/40 group-hover:text-[#355872]/60 transition-colors" />
           <span className="text-xs font-black text-[#355872]/40 uppercase tracking-widest group-hover:text-[#355872]/60 transition-colors">
-            Add More
+            {text.addMore}
           </span>
         </div>
       </div>
@@ -107,7 +125,7 @@ export default function ImageToPdfWorkspace({
           <Loader2 className="w-6 h-6 animate-spin" />
         ) : (
           <>
-            <Download className="w-6 h-6" /> Download PDF
+            <Download className="w-6 h-6" /> {text.downloadBtn}
           </>
         )}
       </button>

@@ -1,13 +1,16 @@
+"use client";
+
 import React from "react";
 import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { Image as ImageIcon, Trash2, Download } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ImageCropWorkspaceProps {
   imageSrc: string;
   fileName: string;
   crop: Crop | undefined;
-  imageRef: React.RefObject<HTMLImageElement | null>; // We pass the ref down so the parent can access the image data
+  imageRef: React.RefObject<HTMLImageElement | null>;
   isProcessing: boolean;
   isValidCrop: boolean;
   setCrop: (crop: Crop) => void;
@@ -28,6 +31,33 @@ export default function ImageCropWorkspace({
   onClear,
   onDownload,
 }: ImageCropWorkspaceProps) {
+  const { locale } = useLanguage();
+
+  const i18n = {
+    en: { processBtn: "Crop & Download", defaultProgress: "Slicing image..." },
+    ko: {
+      processBtn: "자르고 다운로드",
+      defaultProgress: "이미지 자르는 중...",
+    },
+    zh: { processBtn: "裁剪并下载", defaultProgress: "正在裁剪图像..." },
+    de: {
+      processBtn: "Zuschneiden & Herunterladen",
+      defaultProgress: "Bild wird zugeschnitten...",
+    },
+    ru: {
+      processBtn: "Обрезать и скачать",
+      defaultProgress: "Нарезка изображения...",
+    },
+    el: {
+      processBtn: "Περικοπή & Λήψη",
+      defaultProgress: "Γίνεται περικοπή...",
+    },
+    km: { processBtn: "កាត់ និងទាញយក", defaultProgress: "កំពុងកាត់រូបភាព..." },
+    id: { processBtn: "Potong & Unduh", defaultProgress: "Memotong gambar..." },
+  };
+
+  const text = i18n[locale] || i18n.en;
+
   return (
     <div className="flex flex-col gap-8 items-center">
       {/* Header Bar */}
@@ -70,10 +100,10 @@ export default function ImageCropWorkspace({
         className="w-full bg-[#355872] text-[#F7F8F0] px-6 py-5 rounded-2xl font-black text-lg hover:bg-[#7AAACE] transition-all flex items-center justify-center gap-3 shadow-xl shadow-[#355872]/20 disabled:opacity-30 disabled:grayscale"
       >
         {isProcessing ? (
-          <span>Slicing image...</span>
+          <span>{text.defaultProgress}</span>
         ) : (
           <>
-            <Download className="w-6 h-6" /> Crop & Download
+            <Download className="w-6 h-6" /> {text.processBtn}
           </>
         )}
       </button>

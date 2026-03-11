@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PDFDocument } from "pdf-lib";
 import PageShell from "@/components/layouts/PageShell";
 import PdfNav from "@/components/nav/PdfNav";
@@ -9,7 +9,6 @@ import { useLanguage } from "@/context/LanguageContext";
 import PdfMergeUpload from "@/components/ui/PdfMergeUpload";
 import PdfMergeWorkspace from "@/components/ui/PdfMergeWorkspace";
 
-// NEW: Added pageCount to the state interface
 interface FileItem {
   id: string;
   file: File;
@@ -24,25 +23,55 @@ export default function PdfMergeClient() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   // ==========================================
-  // THE PAGE-COUNT SCANNER
-  // Asynchronously reads the PDF upon upload to get the exact page count
+  // TAB CLOSE PROTECTION
+  // ==========================================
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isProcessing) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isProcessing]);
+
+  // ==========================================
+  // THE PAGE-COUNT SCANNER + STRICT VALIDATION
   // ==========================================
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     if (selectedFiles.length === 0) return;
 
-    const availableSlots = Math.max(0, 2 - files.length);
-    if (availableSlots === 0) return;
+    // Filter out non-PDFs
+    const validFiles = selectedFiles.filter(
+      (file) => file.type === "application/pdf",
+    );
+    if (validFiles.length !== selectedFiles.length) {
+      alert("Some files were skipped. Please upload valid PDF documents only.");
+    }
 
-    const filesToProcess = selectedFiles.slice(0, availableSlots);
-    setIsProcessing(true); // Briefly show loading while we scan the PDFs
+    if (validFiles.length === 0) {
+      e.target.value = "";
+      return;
+    }
+
+    const availableSlots = Math.max(0, 2 - files.length);
+    if (availableSlots === 0) {
+      e.target.value = "";
+      return;
+    }
+
+    const filesToProcess = validFiles.slice(0, availableSlots);
+    setIsProcessing(true);
 
     try {
       const newFiles = await Promise.all(
         filesToProcess.map(async (file) => {
           const arrayBuffer = await file.arrayBuffer();
           const pdfDoc = await PDFDocument.load(arrayBuffer);
-          const pageCount = pdfDoc.getPageCount(); // Grab the page count!
+          const pageCount = pdfDoc.getPageCount();
 
           return {
             id: Math.random().toString(36).substring(2, 11),

@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import { Scissors, Download } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface PdfCropWorkspaceProps {
   fileName: string;
@@ -22,6 +25,77 @@ export default function PdfCropWorkspace({
   onPageChange,
   onProcess,
 }: PdfCropWorkspaceProps) {
+  const { locale } = useLanguage();
+
+  const i18n = {
+    en: {
+      pg: "PG",
+      changeDoc: "Change Document",
+      start: "Start",
+      end: "End",
+      export: "Export PDF",
+      processing: "Processing...",
+    },
+    ko: {
+      pg: "쪽",
+      changeDoc: "문서 변경",
+      start: "시작",
+      end: "끝",
+      export: "PDF 내보내기",
+      processing: "처리 중...",
+    },
+    zh: {
+      pg: "页",
+      changeDoc: "更改文档",
+      start: "开始",
+      end: "结束",
+      export: "导出 PDF",
+      processing: "处理中...",
+    },
+    de: {
+      pg: "S.",
+      changeDoc: "Dokument ändern",
+      start: "Start",
+      end: "Ende",
+      export: "PDF exportieren",
+      processing: "Wird bearbeitet...",
+    },
+    ru: {
+      pg: "Стр.",
+      changeDoc: "Изменить документ",
+      start: "Начало",
+      end: "Конец",
+      export: "Экспорт PDF",
+      processing: "Обработка...",
+    },
+    el: {
+      pg: "ΣΕΛ",
+      changeDoc: "Αλλαγή Εγγράφου",
+      start: "Αρχή",
+      end: "Τέλος",
+      export: "Εξαγωγή PDF",
+      processing: "Επεξεργασία...",
+    },
+    km: {
+      pg: "ទំព័រ",
+      changeDoc: "ផ្លាស់ប្តូរឯកសារ",
+      start: "ចាប់ផ្តើម",
+      end: "បញ្ចប់",
+      export: "នាំចេញ PDF",
+      processing: "កំពុងដំណើរការ...",
+    },
+    id: {
+      pg: "HAL",
+      changeDoc: "Ubah Dokumen",
+      start: "Mulai",
+      end: "Akhir",
+      export: "Ekspor PDF",
+      processing: "Memproses...",
+    },
+  };
+
+  const text = i18n[locale] || i18n.en;
+
   return (
     <div className="flex flex-col gap-10 items-center py-2">
       <div className="text-center w-full">
@@ -32,7 +106,7 @@ export default function PdfCropWorkspace({
           </p>
           {totalPages && (
             <span className="text-[10px] font-black bg-[#355872] text-[#F7F8F0] px-2 py-1 rounded-lg">
-              {totalPages} PG
+              {totalPages} {text.pg}
             </span>
           )}
         </div>
@@ -41,7 +115,7 @@ export default function PdfCropWorkspace({
             onClick={onClear}
             className="text-xs font-black text-[#7AAACE] hover:text-[#355872] transition-colors uppercase tracking-[0.2em]"
           >
-            Change Document
+            {text.changeDoc}
           </button>
         </div>
       </div>
@@ -49,7 +123,7 @@ export default function PdfCropWorkspace({
       <div className="flex gap-8 items-center w-full justify-center">
         <div className="flex flex-col items-center">
           <label className="text-[11px] font-black text-[#7AAACE] mb-3 uppercase tracking-[0.3em]">
-            Start
+            {text.start}
           </label>
           <input
             type="number"
@@ -68,7 +142,7 @@ export default function PdfCropWorkspace({
 
         <div className="flex flex-col items-center">
           <label className="text-[11px] font-black text-[#7AAACE] mb-3 uppercase tracking-[0.3em]">
-            End
+            {text.end}
           </label>
           <input
             type="number"
@@ -92,11 +166,11 @@ export default function PdfCropWorkspace({
         {isProcessing ? (
           <span className="flex items-center gap-2">
             <span className="w-6 h-6 border-4 border-[#F7F8F0]/30 border-t-[#F7F8F0] rounded-full animate-spin" />
-            Processing...
+            {text.processing}
           </span>
         ) : (
           <>
-            <Download className="w-7 h-7" /> Export PDF
+            <Download className="w-7 h-7" /> {text.export}
           </>
         )}
       </button>

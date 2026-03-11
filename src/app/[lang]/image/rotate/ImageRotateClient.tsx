@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import PageShell from "@/components/layouts/PageShell";
 import ImageNav from "@/components/nav/ImageNav";
 import { useLanguage } from "@/context/LanguageContext";
@@ -20,15 +20,39 @@ export default function ImageRotateClient() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // --- 2. LOGIC ---
+  // ==========================================
+  // TAB CLOSE PROTECTION
+  // ==========================================
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isProcessing) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isProcessing]);
+
+  // ==========================================
+  // WRONG FILE ALERT
+  // ==========================================
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setImage(url);
-      setFileName(file.name);
-      setRotation(0);
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Invalid file type. Please upload a valid image (JPG, PNG, WebP).");
+      e.target.value = "";
+      return;
     }
+
+    const url = URL.createObjectURL(file);
+    setImage(url);
+    setFileName(file.name);
+    setRotation(0);
+    e.target.value = "";
   };
 
   const handleClear = () => {

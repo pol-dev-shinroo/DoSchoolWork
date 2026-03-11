@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import { Image as ImageIcon } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ImageRotateUploadProps {
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -8,6 +11,21 @@ interface ImageRotateUploadProps {
 export default function ImageRotateUpload({
   onFileChange,
 }: ImageRotateUploadProps) {
+  const { locale } = useLanguage();
+
+  const i18n = {
+    en: { title: "Upload Image", desc: "JPG, PNG, WebP supported" },
+    ko: { title: "이미지 업로드", desc: "JPG, PNG, WebP 지원" },
+    zh: { title: "上传图像", desc: "支持 JPG、PNG、WebP" },
+    de: { title: "Bild hochladen", desc: "JPG, PNG, WebP unterstützt" },
+    ru: {
+      title: "Загрузить изображение",
+      desc: "Поддерживаются JPG, PNG, WebP",
+    },
+  };
+
+  const text = i18n[locale] || i18n.en;
+
   return (
     <div className="group text-center py-12 relative">
       <input
@@ -19,9 +37,9 @@ export default function ImageRotateUpload({
       <div className="w-24 h-24 bg-[#9CD5FF]/20 rounded-[2rem] flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
         <ImageIcon className="w-12 h-12 text-[#355872]" />
       </div>
-      <p className="font-black text-2xl text-[#355872]">Upload Image</p>
+      <p className="font-black text-2xl text-[#355872]">{text.title}</p>
       <p className="text-sm text-[#7AAACE] mt-2 font-bold uppercase tracking-widest">
-        JPG, PNG, WebP supported
+        {text.desc}
       </p>
     </div>
   );

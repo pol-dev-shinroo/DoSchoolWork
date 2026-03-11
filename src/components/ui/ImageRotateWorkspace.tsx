@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import { Image as ImageIcon, Trash2, RotateCw, Download } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ImageRotateWorkspaceProps {
   imageSrc: string;
@@ -20,6 +23,49 @@ export default function ImageRotateWorkspace({
   onClear,
   onDownload,
 }: ImageRotateWorkspaceProps) {
+  const { locale } = useLanguage();
+
+  const i18n = {
+    en: {
+      rotateBtn: "Rotate 90°",
+      downloadBtn: "Download",
+      processing: "Processing...",
+    },
+    ko: {
+      rotateBtn: "90° 회전",
+      downloadBtn: "다운로드",
+      processing: "처리 중...",
+    },
+    zh: { rotateBtn: "旋转 90°", downloadBtn: "下载", processing: "处理中..." },
+    de: {
+      rotateBtn: "90° drehen",
+      downloadBtn: "Herunterladen",
+      processing: "Wird bearbeitet...",
+    },
+    ru: {
+      rotateBtn: "Повернуть на 90°",
+      downloadBtn: "Скачать",
+      processing: "Обработка...",
+    },
+    el: {
+      rotateBtn: "Περιστροφή 90°",
+      downloadBtn: "Λήψη",
+      processing: "Επεξεργασία...",
+    },
+    km: {
+      rotateBtn: "បង្វិល 90°",
+      downloadBtn: "ទាញយក",
+      processing: "កំពុងដំណើរការ...",
+    },
+    id: {
+      rotateBtn: "Putar 90°",
+      downloadBtn: "Unduh",
+      processing: "Memproses...",
+    },
+  };
+
+  const text = i18n[locale] || i18n.en;
+
   return (
     <div className="flex flex-col gap-8 items-center">
       {/* Header Bar */}
@@ -52,7 +98,7 @@ export default function ImageRotateWorkspace({
           onClick={onRotate}
           className="flex-1 bg-white border-2 border-[#355872]/10 text-[#355872] px-6 py-4 rounded-2xl font-black hover:bg-[#F7F8F0] hover:border-[#355872]/30 transition-all flex items-center justify-center gap-2"
         >
-          <RotateCw className="w-5 h-5" /> Rotate 90°
+          <RotateCw className="w-5 h-5" /> {text.rotateBtn}
         </button>
 
         <button
@@ -61,10 +107,10 @@ export default function ImageRotateWorkspace({
           className="flex-[2] bg-[#355872] text-[#F7F8F0] px-6 py-4 rounded-2xl font-black hover:bg-[#7AAACE] transition-all flex items-center justify-center gap-2 shadow-xl shadow-[#355872]/20 disabled:opacity-30 disabled:grayscale"
         >
           {isProcessing ? (
-            <span>Processing...</span>
+            <span>{text.processing}</span>
           ) : (
             <>
-              <Download className="w-5 h-5" /> Download
+              <Download className="w-5 h-5" /> {text.downloadBtn}
             </>
           )}
         </button>

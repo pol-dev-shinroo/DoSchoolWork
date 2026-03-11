@@ -22,8 +22,15 @@ export async function generateMetadata({
   };
 }
 
+// THE FIX: Expand static params here too
 export function generateStaticParams() {
-  return [{ lang: "en" }, { lang: "ko" }];
+  return [
+    { lang: "en" },
+    { lang: "ko" },
+    { lang: "zh" },
+    { lang: "de" },
+    { lang: "ru" },
+  ];
 }
 
 // NEXT.JS 16 FIX: Make the layout async to await the params

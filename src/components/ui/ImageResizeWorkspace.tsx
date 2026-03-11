@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Cropper, { Area } from "react-easy-crop";
 import {
@@ -7,6 +9,7 @@ import {
   ZoomIn,
   Download,
 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Ratio {
   id: string;
@@ -47,6 +50,66 @@ export default function ImageResizeWorkspace({
   onClear,
   onDownload,
 }: ImageResizeWorkspaceProps) {
+  const { locale } = useLanguage();
+
+  const i18n = {
+    en: {
+      trendy: "TRENDY",
+      processBtn: "Export as",
+      defaultProgress: "Processing...",
+    },
+    ko: {
+      trendy: "인기",
+      processBtn: "로 내보내기",
+      defaultProgress: "처리 중...",
+    },
+    zh: { trendy: "热门", processBtn: "导出为", defaultProgress: "处理中..." },
+    de: {
+      trendy: "TREND",
+      processBtn: "Exportieren als",
+      defaultProgress: "Wird bearbeitet...",
+    },
+    ru: {
+      trendy: "ТРЕНД",
+      processBtn: "Экспорт как",
+      defaultProgress: "Обработка...",
+    },
+  };
+
+  // Localized ratio labels mapping
+  const ratioLabels: Record<string, Record<string, string>> = {
+    "4:5": {
+      en: "Social Portrait",
+      ko: "소셜 포트레이트",
+      zh: "社交肖像",
+      de: "Soziales Porträt",
+      ru: "Социальный портрет",
+    },
+    "1:1": {
+      en: "Square / Profile",
+      ko: "정사각형 / 프로필",
+      zh: "正方形 / 个人资料",
+      de: "Quadrat / Profil",
+      ru: "Квадрат / Профиль",
+    },
+    "16:9": {
+      en: "Presentation",
+      ko: "프레젠테이션",
+      zh: "演示文稿",
+      de: "Präsentation",
+      ru: "Презентация",
+    },
+    "9:16": {
+      en: "Story / Reel",
+      ko: "스토리 / 릴스",
+      zh: "快拍 / 短视频",
+      de: "Story / Reel",
+      ru: "Истории / Reels",
+    },
+  };
+
+  const text = i18n[locale] || i18n.en;
+
   return (
     <div className="flex flex-col gap-6 items-center">
       {/* Header Bar */}
@@ -95,31 +158,34 @@ export default function ImageResizeWorkspace({
 
       {/* Ratios Grid */}
       <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
-        {ratios.map((ratio) => (
-          <button
-            key={ratio.id}
-            onClick={() => onRatioChange(ratio)}
-            className={`relative flex flex-col items-center p-4 rounded-2xl border-2 transition-all ${
-              activeRatio.id === ratio.id
-                ? "border-[#355872] bg-[#F7F8F0] shadow-md scale-105"
-                : "border-[#355872]/10 bg-white hover:border-[#9CD5FF]"
-            }`}
-          >
-            {ratio.trendy && (
-              <div className="absolute -top-3 -right-2 bg-yellow-400 text-yellow-900 text-[9px] font-black px-2 py-1 rounded-full flex items-center gap-1 shadow-sm transform rotate-6 z-10">
-                <Star className="w-3 h-3 fill-yellow-900" /> TRENDY
-              </div>
-            )}
-            <span
-              className={`font-black text-lg ${activeRatio.id === ratio.id ? "text-[#355872]" : "text-[#7AAACE]"}`}
+        {ratios.map((ratio) => {
+          const localizedLabel = ratioLabels[ratio.id]?.[locale] || ratio.label;
+          return (
+            <button
+              key={ratio.id}
+              onClick={() => onRatioChange(ratio)}
+              className={`relative flex flex-col items-center p-4 rounded-2xl border-2 transition-all ${
+                activeRatio.id === ratio.id
+                  ? "border-[#355872] bg-[#F7F8F0] shadow-md scale-105"
+                  : "border-[#355872]/10 bg-white hover:border-[#9CD5FF]"
+              }`}
             >
-              {ratio.id}
-            </span>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 text-center">
-              {ratio.label}
-            </span>
-          </button>
-        ))}
+              {ratio.trendy && (
+                <div className="absolute -top-3 -right-2 bg-yellow-400 text-yellow-900 text-[9px] font-black px-2 py-1 rounded-full flex items-center gap-1 shadow-sm transform rotate-6 z-10">
+                  <Star className="w-3 h-3 fill-yellow-900" /> {text.trendy}
+                </div>
+              )}
+              <span
+                className={`font-black text-lg ${activeRatio.id === ratio.id ? "text-[#355872]" : "text-[#7AAACE]"}`}
+              >
+                {ratio.id}
+              </span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 text-center">
+                {localizedLabel}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Export Button */}
@@ -129,10 +195,13 @@ export default function ImageResizeWorkspace({
         className="w-full bg-[#355872] text-[#F7F8F0] px-6 py-5 rounded-2xl font-black text-lg hover:bg-[#7AAACE] transition-all flex items-center justify-center gap-3 shadow-xl shadow-[#355872]/20 disabled:opacity-30 disabled:grayscale mt-2"
       >
         {isProcessing ? (
-          "Processing..."
+          <span>{text.defaultProgress}</span>
         ) : (
           <>
-            <Download className="w-6 h-6" /> Export as {activeRatio.id}
+            <Download className="w-6 h-6" />{" "}
+            {locale === "ko"
+              ? `${activeRatio.id}${text.processBtn}`
+              : `${text.processBtn} ${activeRatio.id}`}
           </>
         )}
       </button>

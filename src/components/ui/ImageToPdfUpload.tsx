@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import { FileImage } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ImageToPdfUploadProps {
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -8,6 +11,21 @@ interface ImageToPdfUploadProps {
 export default function ImageToPdfUpload({
   onFileChange,
 }: ImageToPdfUploadProps) {
+  const { locale } = useLanguage();
+
+  const i18n = {
+    en: { title: "Image to PDF", desc: "Select images to combine" },
+    ko: { title: "이미지 PDF 변환", desc: "결합할 이미지 선택" },
+    zh: { title: "图像转 PDF", desc: "选择要合并的图像" },
+    de: { title: "Bild zu PDF", desc: "Wählen Sie Bilder zum Kombinieren aus" },
+    ru: {
+      title: "Изображение в PDF",
+      desc: "Выберите изображения для объединения",
+    },
+  };
+
+  const text = i18n[locale] || i18n.en;
+
   return (
     <div className="group text-center py-12 relative">
       <input
@@ -20,9 +38,9 @@ export default function ImageToPdfUpload({
       <div className="w-24 h-24 bg-[#9CD5FF]/20 rounded-[2rem] flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
         <FileImage className="w-12 h-12 text-[#355872]" />
       </div>
-      <h2 className="font-black text-2xl text-[#355872]">Image to PDF</h2>
+      <h2 className="font-black text-2xl text-[#355872]">{text.title}</h2>
       <p className="text-sm text-[#7AAACE] mt-2 font-bold uppercase tracking-widest">
-        Select images to combine
+        {text.desc}
       </p>
     </div>
   );

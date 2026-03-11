@@ -2,7 +2,7 @@
 
 import { createPortal } from "react-dom";
 import { X, Check, Globe } from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext";
+import { useLanguage, Locale } from "@/context/LanguageContext";
 
 export default function LanguageSheet({
   isOpen,
@@ -13,9 +13,13 @@ export default function LanguageSheet({
 }) {
   const { locale, setLocale } = useLanguage();
 
+  // Expanded to 5 languages, matching your sleek "Symbol" design instead of emojis
   const languages = [
-    { code: "en", label: "English", flag: "🇺🇸", desc: "US English" },
-    { code: "ko", label: "한국어", flag: "🇰🇷", desc: "Korean" },
+    { code: "en", symbol: "US", label: "English", desc: "US English" },
+    { code: "ko", symbol: "KR", label: "한국어", desc: "Korean" },
+    { code: "zh", symbol: "CN", label: "中文", desc: "Chinese" },
+    { code: "de", symbol: "DE", label: "Deutsch", desc: "German" },
+    { code: "ru", symbol: "RU", label: "Русский", desc: "Russian" },
   ];
 
   if (!isOpen) return null;
@@ -23,7 +27,6 @@ export default function LanguageSheet({
 
   return createPortal(
     <>
-      {/* 1. Define Keyframes locally to ensure animations work without plugins */}
       <style jsx>{`
         @keyframes slideIn {
           from {
@@ -42,42 +45,40 @@ export default function LanguageSheet({
           }
         }
         .animate-slide-in {
-          animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .animate-fade-in {
-          animation: fadeIn 0.5s ease-out forwards;
+          animation: fadeIn 0.3s ease-out forwards;
         }
       `}</style>
 
       <div className="fixed inset-0 z-[100] flex justify-end">
         {/* Backdrop: Fade In */}
         <div
-          className="absolute inset-0 bg-[#F7F8F0]/20 backdrop-blur-sm animate-fade-in"
+          className="absolute inset-0 bg-[#F7F8F0]/40 backdrop-blur-sm animate-fade-in"
           onClick={onClose}
         />
 
         {/* Drawer: Slide In */}
-        <div className="relative w-full max-w-[340px] bg-white h-full shadow-[-10px_0_40px_rgba(53,88,114,0.08)] p-8 animate-slide-in flex flex-col">
+        <div className="relative w-full max-w-[340px] bg-white h-full shadow-2xl p-8 animate-slide-in flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between mb-10">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#355872]/5 flex items-center justify-center">
-                <Globe className="w-4 h-4 text-[#355872]" />
-              </div>
+            <div className="flex items-center gap-2">
+              <Globe className="w-4 h-4 text-[#355872]/60" />
               <h2 className="text-xs font-black text-[#355872] uppercase tracking-widest">
                 {locale === "en" ? "Language" : "언어 선택"}
               </h2>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-[#F7F8F0] rounded-xl transition-all text-[#355872]/40 hover:text-[#355872]"
+              className="p-1 hover:bg-[#F7F8F0] rounded-lg transition-all text-[#355872]/40 hover:text-[#355872]"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Language Cards */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 overflow-y-auto pb-8">
             {languages.map((lang) => {
               const isActive = locale === lang.code;
 
@@ -85,57 +86,48 @@ export default function LanguageSheet({
                 <button
                   key={lang.code}
                   onClick={() => {
-                    setLocale(lang.code as "en" | "ko");
-                    // REMOVED onClose() so the sheet stays open
+                    setLocale(lang.code as Locale);
+                    // Optional: Call onClose() here if you want the drawer to close immediately upon selection!
                   }}
-                  className={`group relative w-full text-left p-4 rounded-2xl border transition-all duration-300 overflow-hidden bg-transparent ${
+                  className={`relative w-full text-left p-5 rounded-2xl border transition-all duration-300 flex items-center justify-between group bg-white shrink-0 ${
                     isActive
-                      ? "border-[#355872]/20"
+                      ? "border-[#355872]/20 border-l-4 border-l-[#355872] shadow-sm"
                       : "border-transparent hover:border-[#355872]/10"
                   }`}
                 >
-                  {/* Active Indicator Bar */}
-                  {isActive && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#355872] rounded-r-full" />
-                  )}
+                  <div className="flex items-center gap-6">
+                    {/* Minimalist Symbol (e.g., US, KR) */}
+                    <span
+                      className={`text-xl font-light transition-colors ${
+                        isActive
+                          ? "text-[#355872]"
+                          : "text-[#355872]/40 group-hover:text-[#355872]/70"
+                      }`}
+                    >
+                      {lang.symbol}
+                    </span>
 
-                  <div className="flex items-center justify-between ml-2">
-                    <div className="flex items-center gap-4">
-                      {/* Flag Container */}
-                      <div
-                        className={`w-12 h-12 flex items-center justify-center text-3xl transition-all duration-300 ${
+                    {/* Text Details */}
+                    <div className="flex flex-col gap-1">
+                      <span
+                        className={`font-black text-sm transition-colors ${
                           isActive
-                            ? "opacity-100 scale-105"
-                            : "opacity-60 group-hover:opacity-100"
+                            ? "text-[#355872]"
+                            : "text-[#355872]/60 group-hover:text-[#355872]"
                         }`}
                       >
-                        {lang.flag}
-                      </div>
-
-                      {/* Text Details */}
-                      <div className="flex flex-col gap-0.5">
-                        <span
-                          className={`font-black text-sm transition-colors ${
-                            isActive
-                              ? "text-[#355872]"
-                              : "text-[#355872]/60 group-hover:text-[#355872]"
-                          }`}
-                        >
-                          {lang.label}
-                        </span>
-                        <span className="text-[10px] font-bold text-[#355872]/40 uppercase tracking-wider">
-                          {lang.desc}
-                        </span>
-                      </div>
+                        {lang.label}
+                      </span>
+                      <span className="text-[9px] font-black text-[#355872]/30 uppercase tracking-[0.2em]">
+                        {lang.desc}
+                      </span>
                     </div>
-
-                    {/* Checkmark */}
-                    {isActive && (
-                      <div className="w-6 h-6 rounded-full bg-transparent flex items-center justify-center mr-2">
-                        <Check className="w-5 h-5 text-[#355872] stroke-[3]" />
-                      </div>
-                    )}
                   </div>
+
+                  {/* Checkmark */}
+                  {isActive && (
+                    <Check className="w-5 h-5 text-[#355872] stroke-[3]" />
+                  )}
                 </button>
               );
             })}

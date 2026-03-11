@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { PDFDocument, PageSizes } from "pdf-lib"; // IMPORTED PAGESIZES
+import React, { useState, useEffect } from "react";
+import { PDFDocument, PageSizes } from "pdf-lib";
 import PageShell from "@/components/layouts/PageShell";
 import ImageNav from "@/components/nav/ImageNav";
 import { useLanguage } from "@/context/LanguageContext";
@@ -21,11 +21,45 @@ export default function ImageToPdfClient() {
   const [images, setImages] = useState<ImageItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // ==========================================
+  // TAB CLOSE PROTECTION
+  // ==========================================
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isProcessing) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isProcessing]);
+
+  // ==========================================
+  // WRONG FILE ALERT & FILTERING
+  // ==========================================
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     if (selectedFiles.length === 0) return;
 
-    const newImages = selectedFiles.map((file) => ({
+    // Filter out any non-image files
+    const validFiles = selectedFiles.filter((file) =>
+      file.type.startsWith("image/"),
+    );
+
+    if (validFiles.length !== selectedFiles.length) {
+      alert(
+        "Some files were skipped. Please upload valid images only (JPG, PNG, WebP).",
+      );
+    }
+
+    if (validFiles.length === 0) {
+      e.target.value = "";
+      return;
+    }
+
+    const newImages = validFiles.map((file) => ({
       id: Math.random().toString(36).substring(2, 11),
       file,
       preview: URL.createObjectURL(file),
@@ -78,10 +112,9 @@ export default function ImageToPdfClient() {
     try {
       const pdfDoc = await PDFDocument.create();
 
-      // Standard A4 dimensions in points
       const a4Width = PageSizes.A4[0];
       const a4Height = PageSizes.A4[1];
-      const margin = 30; // 30-point safe margin for physical printers
+      const margin = 30;
 
       for (const img of images) {
         let embeddedImage;
@@ -104,10 +137,6 @@ export default function ImageToPdfClient() {
         const imgWidth = embeddedImage.width;
         const imgHeight = embeddedImage.height;
 
-        // ==========================================
-        // THE PERFECT PRINT MATH
-        // Calculates how much to shrink/grow the image so it fits A4 precisely
-        // ==========================================
         const maxWidth = a4Width - margin * 2;
         const maxHeight = a4Height - margin * 2;
 
@@ -115,7 +144,6 @@ export default function ImageToPdfClient() {
         const scaledWidth = imgWidth * scale;
         const scaledHeight = imgHeight * scale;
 
-        // Center the image on the A4 page
         const x = (a4Width - scaledWidth) / 2;
         const y = (a4Height - scaledHeight) / 2;
 

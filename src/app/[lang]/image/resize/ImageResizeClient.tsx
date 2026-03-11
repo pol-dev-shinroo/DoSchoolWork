@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import PageShell from "@/components/layouts/PageShell";
 import ImageNav from "@/components/nav/ImageNav";
 import { useLanguage } from "@/context/LanguageContext";
@@ -31,15 +31,39 @@ export default function ImageResizeClient() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // --- 2. BUSINESS LOGIC ---
+  // ==========================================
+  // TAB CLOSE PROTECTION
+  // ==========================================
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isProcessing) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isProcessing]);
+
+  // ==========================================
+  // WRONG FILE ALERT
+  // ==========================================
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setImageSrc(URL.createObjectURL(file));
-      setFileName(file.name);
-      setZoom(1);
-      setCrop({ x: 0, y: 0 });
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Invalid file type. Please upload a valid image (JPG, PNG, WebP).");
+      e.target.value = "";
+      return;
     }
+
+    setImageSrc(URL.createObjectURL(file));
+    setFileName(file.name);
+    setZoom(1);
+    setCrop({ x: 0, y: 0 });
+    e.target.value = "";
   };
 
   const onCropComplete = useCallback((_: Area, pixels: Area) => {
