@@ -9,10 +9,15 @@ import { useLanguage } from "@/context/LanguageContext";
 
 import OcrPdfUpload from "@/components/ui/OcrPdfUpload";
 import OcrPdfWorkspace from "@/components/ui/OcrPdfWorkspace";
-import { useProcessingWarning } from "@/hooks/useProcessingWarning"; // <-- THE NEW HOOK
+import { useProcessingWarning } from "@/hooks/useProcessingWarning";
 
 interface TesseractPdfData {
   pdf?: number[];
+}
+
+export interface PreviewChunk {
+  title: string;
+  url: string;
 }
 
 export default function OCRPdfClient() {
@@ -22,14 +27,11 @@ export default function OCRPdfClient() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressStatus, setProgressStatus] = useState("");
 
-  // ==========================================
-  // TAB CLOSE PROTECTION
-  // ==========================================
+  const [previews, setPreviews] = useState<PreviewChunk[]>([]);
+
+  // Tab Close Protection
   useProcessingWarning(isProcessing);
 
-  // ==========================================
-  // WRONG FILE ALERT
-  // ==========================================
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
@@ -44,11 +46,13 @@ export default function OCRPdfClient() {
     }
 
     setFile(selectedFile);
+    setPreviews([]); // Always reset on fresh upload
   };
 
   const handleClear = () => {
     setFile(null);
     setProgressStatus("");
+    setPreviews([]);
   };
 
   const handleOCR = async () => {
@@ -57,6 +61,7 @@ export default function OCRPdfClient() {
     setProgressStatus("Initializing Engine...");
 
     let worker: Tesseract.Worker | null = null;
+    const CHUNK_SIZE = 20;
 
     try {
       const pdfjsLib = await import("pdfjs-dist");
@@ -66,7 +71,8 @@ export default function OCRPdfClient() {
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       const numPages = pdf.numPages;
 
-      const outPdf = await PDFDocument.create();
+      let outPdf = await PDFDocument.create();
+      let chunkStartPage = 1;
 
       worker = await Tesseract.createWorker("eng", 1, {
         logger: (m) => {
@@ -125,18 +131,44 @@ export default function OCRPdfClient() {
             height: canvas.height,
           });
         }
+
+        // TRIGGER PACKAGING LOGIC
+        if (i % CHUNK_SIZE === 0 || i === numPages) {
+          setProgressStatus(`Packaging Pages ${chunkStartPage}-${i}...`);
+
+          const pdfBytes = await outPdf.save();
+          const blob = new Blob([new Uint8Array(pdfBytes)], {
+            type: "application/pdf",
+          });
+          const url = URL.createObjectURL(blob);
+          const baseName = file.name.replace(/\.pdf$/i, "");
+
+          // FIX: Branch the logic based on total document size!
+          if (numPages <= CHUNK_SIZE) {
+            // SMALL FILE FLOW: Just auto-download at the end. No previews needed.
+            if (i === numPages) {
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = `Searchable_${baseName}.pdf`;
+              link.click();
+            }
+          } else {
+            // LARGE FILE FLOW: Use the Milestones Preview system
+            const chunkTitle = `Pages_${chunkStartPage}-${i}`;
+            setPreviews((prev) => [...prev, { title: chunkTitle, url }]);
+
+            if (i === numPages) {
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = `Searchable_${baseName}_(Part_${chunkStartPage}-${i}).pdf`;
+              link.click();
+            } else {
+              outPdf = await PDFDocument.create();
+              chunkStartPage = i + 1;
+            }
+          }
+        }
       }
-
-      setProgressStatus("Finalizing Document...");
-      const pdfBytes = await outPdf.save();
-
-      const blob = new Blob([new Uint8Array(pdfBytes)], {
-        type: "application/pdf",
-      });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `Searchable_${file.name}`;
-      link.click();
     } catch (error) {
       console.error("[OCR Engine Error]:", error);
       const errorMessage =
@@ -165,6 +197,7 @@ export default function OCRPdfClient() {
             fileName={file.name}
             isProcessing={isProcessing}
             progressStatus={progressStatus}
+            previews={previews} // Will be empty if file <= 20 pages!
             onClear={handleClear}
             onProcess={handleOCR}
           />
