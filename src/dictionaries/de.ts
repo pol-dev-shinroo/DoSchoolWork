@@ -4,6 +4,8 @@ export const de: Dictionary = {
   common: {
     backToToolbox: "Zurück zur Toolbox",
     soon: "BALD",
+    processingWarning:
+      "Bitte warten Sie, bis die aktuelle Datei verarbeitet wurde, bevor Sie die Seite wechseln.",
   },
   header: {
     freeNoLogin: "Kostenlos, kein Login",
@@ -28,9 +30,9 @@ export const de: Dictionary = {
       "Fügen Sie mehrere PDF-Dateien zu einem Dokument zusammen. Sortieren Sie Seiten neu und führen Sie PDFs direkt in Ihrem Browser zusammen.",
   },
   pdfCrop: {
-    title: "PDF zuschneiden",
+    title: "PDF teilen",
     description:
-      "Schneiden Sie PDF-Seiten zu, entfernen Sie Ränder und extrahieren Sie bestimmte Abschnitte aus Ihren PDF-Dokumenten.",
+      "Teilen Sie PDF-Seiten, entfernen Sie Ränder und extrahieren Sie bestimmte Abschnitte aus Ihren PDF-Dokumenten.",
   },
   imageCrop: {
     title: "Bild zuschneiden",
@@ -56,6 +58,8 @@ export const de: Dictionary = {
     title: "OCR PDF",
     description:
       "Machen Sie gescannte PDF-Dokumente durchsuchbar. Wenden Sie optische Zeichenerkennung (OCR) an, um Text zu kopieren und hervorzuheben.",
+    pageLimitConfirm:
+      "Diese Datei hat {{count}} Seiten. Um eine schnelle Verarbeitung zu gewährleisten, verarbeiten wir maximal 50 Seiten auf einmal.\n\nMöchten Sie unser PDF-Teilen-Tool verwenden, um Ihr Dokument zu teilen?",
   },
   imageToPdf: {
     title: "Bild in PDF umwandeln",

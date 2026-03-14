@@ -5,10 +5,8 @@ import { Scissors, FileStack } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 export default function PdfNav({ active }: { active: string }) {
-  // 1. Grab 'locale' to fix the 404 routing!
   const { locale } = useLanguage();
 
-  // 2. Reordered: Merge is now first!
   const links = [
     {
       id: "merge",
@@ -17,10 +15,10 @@ export default function PdfNav({ active }: { active: string }) {
       href: `/${locale}/pdf/merge`,
     },
     {
-      id: "crop",
-      label: "CROP",
+      id: "split", // <-- Updated ID
+      label: "SPLIT", // <-- Updated Label
       icon: Scissors,
-      href: `/${locale}/pdf/crop`,
+      href: `/${locale}/pdf/split`, // <-- THE FIX: Updated URL
     },
   ];
 

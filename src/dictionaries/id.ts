@@ -4,6 +4,8 @@ export const id: Dictionary = {
   common: {
     backToToolbox: "Kembali ke Alat",
     soon: "SEGERA",
+    processingWarning:
+      "Harap tunggu hingga file saat ini selesai diproses sebelum berpindah halaman.",
   },
   header: {
     freeNoLogin: "Gratis, Tanpa Login",
@@ -28,9 +30,9 @@ export const id: Dictionary = {
       "Gabungkan beberapa file PDF menjadi satu dokumen. Susun ulang halaman dan gabungkan PDF langsung di browser Anda.",
   },
   pdfCrop: {
-    title: "Potong PDF",
+    title: "Pisahkan PDF",
     description:
-      "Potong halaman PDF, hapus margin, dan ekstrak bagian tertentu dari dokumen PDF Anda.",
+      "Pisahkan halaman PDF, hapus margin, dan ekstrak bagian tertentu dari dokumen PDF Anda.",
   },
   imageCrop: {
     title: "Potong Gambar",
@@ -56,6 +58,8 @@ export const id: Dictionary = {
     title: "OCR PDF",
     description:
       "Buat dokumen PDF hasil scan dapat dicari. Terapkan pengenalan karakter optik (OCR) untuk menyalin teks.",
+    pageLimitConfirm:
+      "File ini memiliki {{count}} halaman. Untuk memastikan pemrosesan yang cepat, kami menangani maksimal 50 halaman sekaligus.\n\nApakah Anda ingin menggunakan alat Pisahkan untuk membagi dokumen Anda?",
   },
   imageToPdf: {
     title: "Gambar ke PDF",

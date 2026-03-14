@@ -4,6 +4,7 @@ export const zh: Dictionary = {
   common: {
     backToToolbox: "返回工具箱",
     soon: "即将推出",
+    processingWarning: "请等待当前文件处理完毕后再切换页面。",
   },
   header: {
     freeNoLogin: "免费，免登录",
@@ -52,6 +53,8 @@ export const zh: Dictionary = {
     title: "OCR PDF",
     description:
       "使扫描的 PDF 文档可搜索。应用光学字符识别 (OCR) 来复制和突出显示文本。",
+    pageLimitConfirm:
+      "此文件有 {{count}} 页。为了确保快速处理，我们一次最多处理 50 页。\n\n您想使用我们的拆分工具来分割您的文档吗？",
   },
   imageToPdf: {
     title: "图像转 PDF",

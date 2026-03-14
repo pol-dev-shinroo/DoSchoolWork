@@ -18,8 +18,8 @@ export default function PdfCropClient() {
   const [pages, setPages] = useState({ start: 1, end: 1 });
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Tab Close Protection Hook
-  useProcessingWarning(isProcessing);
+  // UPDATED: Now passing the translated string from our dictionary!
+  useProcessingWarning(isProcessing, t.common.processingWarning);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -91,7 +91,7 @@ export default function PdfCropClient() {
       });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `Cropped_${file.name}`;
+      link.download = `Split_${file.name}`;
       link.click();
     } catch (error) {
       alert(
@@ -112,7 +112,7 @@ export default function PdfCropClient() {
     <PageShell
       title={t.pdfCrop.title}
       description={t.pdfCrop.description}
-      navToggle={<PdfNav active="crop" />}
+      navToggle={<PdfNav active="split" />} // Validated: active="split" is correct here!
     >
       <div className="max-w-xl mx-auto p-10 border-4 border-double border-[#355872]/20 rounded-[3rem] bg-white shadow-xl shadow-[#355872]/5 mt-8 transition-all">
         {!file ? (

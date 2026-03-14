@@ -5,6 +5,8 @@ export const en = {
   common: {
     backToToolbox: "Back to Toolbox",
     soon: "SOON",
+    processingWarning:
+      "Please wait until the current file finishes processing before changing pages.",
   },
   header: {
     freeNoLogin: "Free, No Login",
@@ -37,9 +39,9 @@ export const en = {
       "Combine multiple PDF files into a single document. Reorder pages and merge PDFs directly in your browser.",
   },
   pdfCrop: {
-    title: "Crop PDF",
+    title: "Split PDF",
     description:
-      "Crop PDF pages, remove margins, and extract specific sections from your PDF documents.",
+      "Split PDF pages, remove margins, and extract specific sections from your PDF documents.",
   },
 
   // ==========================================
@@ -73,6 +75,8 @@ export const en = {
     title: "OCR PDF",
     description:
       "Make scanned PDF documents searchable. Apply Optical Character Recognition (OCR) to copy and highlight text.",
+    pageLimitConfirm:
+      "This file has {{count}} pages. To ensure fast processing, we handle a maximum of 50 pages at once.\n\nWould you like to use our Split tool to divide your document?",
   },
   imageToPdf: {
     title: "Image to PDF",

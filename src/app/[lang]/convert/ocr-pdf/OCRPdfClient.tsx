@@ -1,19 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
-import { PDFDocument } from "pdf-lib";
-import Tesseract from "tesseract.js";
+import React, { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import PageShell from "@/components/layouts/PageShell";
 import ConvertNav from "@/components/nav/ConvertNav";
 import { useLanguage } from "@/context/LanguageContext";
+import { PDFDocument } from "pdf-lib";
 
 import OcrPdfUpload from "@/components/ui/OcrPdfUpload";
 import OcrPdfWorkspace from "@/components/ui/OcrPdfWorkspace";
 import { useProcessingWarning } from "@/hooks/useProcessingWarning";
-
-interface TesseractPdfData {
-  pdf?: number[];
-}
 
 export interface PreviewChunk {
   title: string;
@@ -21,163 +17,182 @@ export interface PreviewChunk {
 }
 
 export default function OCRPdfClient() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const router = useRouter();
 
   const [file, setFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressStatus, setProgressStatus] = useState("");
-
   const [previews, setPreviews] = useState<PreviewChunk[]>([]);
 
-  // Tab Close Protection
-  useProcessingWarning(isProcessing);
+  const [animatedProgress, setAnimatedProgress] = useState(0);
+  const targetProgressRef = useRef(0);
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // FIX 1: Passed the translated warning message as the second argument!
+  useProcessingWarning(isProcessing, t.common.processingWarning);
+
+  useEffect(() => {
+    if (isProcessing) {
+      progressIntervalRef.current = setInterval(() => {
+        setAnimatedProgress((prev) => {
+          if (prev < targetProgressRef.current - 5)
+            return prev + Math.floor(Math.random() * 3) + 1;
+          if (prev < targetProgressRef.current - 1) return prev + 1;
+          return prev;
+        });
+      }, 400);
+    } else {
+      if (progressIntervalRef.current)
+        clearInterval(progressIntervalRef.current);
+    }
+    return () => {
+      if (progressIntervalRef.current)
+        clearInterval(progressIntervalRef.current);
+    };
+  }, [isProcessing]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
-
-    if (
-      selectedFile.type !== "application/pdf" &&
-      !selectedFile.name.toLowerCase().endsWith(".pdf")
-    ) {
-      alert("Invalid file type. Please upload a valid PDF document.");
-      e.target.value = "";
-      return;
-    }
-
     setFile(selectedFile);
-    setPreviews([]); // Always reset on fresh upload
+    setPreviews([]);
+    setAnimatedProgress(0);
   };
 
   const handleClear = () => {
     setFile(null);
     setProgressStatus("");
+    setAnimatedProgress(0);
     setPreviews([]);
   };
 
   const handleOCR = async () => {
     if (!file) return;
-    setIsProcessing(true);
-    setProgressStatus("Initializing Engine...");
 
-    let worker: Tesseract.Worker | null = null;
-    const CHUNK_SIZE = 20;
+    setIsProcessing(true);
+    setPreviews([]);
+    setAnimatedProgress(0);
+    targetProgressRef.current = 5;
 
     try {
-      const pdfjsLib = await import("pdfjs-dist");
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+      setProgressStatus("Analyzing document structure...");
 
       const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      const numPages = pdf.numPages;
+      const originalPdf = await PDFDocument.load(arrayBuffer);
+      const totalPages = originalPdf.getPageCount();
 
-      let outPdf = await PDFDocument.create();
-      let chunkStartPage = 1;
+      // ==========================================
+      // The 50-Page Limit & Split Redirect
+      // ==========================================
+      if (totalPages > 50) {
+        setIsProcessing(false);
 
-      worker = await Tesseract.createWorker("eng", 1, {
-        logger: (m) => {
-          if (m.status === "recognizing text") {
-            setProgressStatus(`Scanning: ${(m.progress * 100).toFixed(0)}%`);
-          }
-        },
+        // Use the dynamically translated string we created earlier
+        const alertMessage = t.ocrPdf.pageLimitConfirm.replace(
+          "{{count}}",
+          totalPages.toString(),
+        );
+
+        const userWantsToCrop = window.confirm(alertMessage);
+
+        if (userWantsToCrop) {
+          // FIX 2: Correctly routes to the new /split page!
+          router.push(`/${locale}/pdf/split`);
+        }
+        return;
+      }
+      // ==========================================
+
+      const CHUNK_SIZE = 20;
+      const totalChunks = Math.ceil(totalPages / CHUNK_SIZE);
+      const processedPdfBytesArray: Uint8Array[] = [];
+
+      for (let i = 0; i < totalChunks; i++) {
+        const startPage = i * CHUNK_SIZE;
+        const endPage = Math.min(startPage + CHUNK_SIZE, totalPages) - 1;
+
+        targetProgressRef.current = Math.round(((i + 1) / totalChunks) * 95);
+        setProgressStatus(
+          `Processing Pages ${startPage + 1} to ${endPage + 1}...`,
+        );
+
+        const chunkPdf = await PDFDocument.create();
+        const pageIndices = Array.from(
+          { length: endPage - startPage + 1 },
+          (_, k) => startPage + k,
+        );
+        const copiedPages = await chunkPdf.copyPages(originalPdf, pageIndices);
+        copiedPages.forEach((page) => chunkPdf.addPage(page));
+
+        const chunkBytes = await chunkPdf.save();
+        const chunkBlob = new Blob([new Uint8Array(chunkBytes)], {
+          type: "application/pdf",
+        });
+        const chunkFile = new File([chunkBlob], `chunk.pdf`, {
+          type: "application/pdf",
+        });
+
+        const formData = new FormData();
+        formData.append("file", chunkFile);
+
+        const response = await fetch("http://localhost:8000/ocr", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok)
+          throw new Error(
+            `Server failed on pages ${startPage + 1}-${endPage + 1}`,
+          );
+
+        const processedBlob = await response.blob();
+        const processedBytes = new Uint8Array(
+          await processedBlob.arrayBuffer(),
+        );
+        processedPdfBytesArray.push(processedBytes);
+
+        if (totalChunks > 1) {
+          const localUrl = URL.createObjectURL(processedBlob);
+          setPreviews((prev) => [
+            ...prev,
+            { title: `Pages ${startPage + 1}-${endPage + 1}`, url: localUrl },
+          ]);
+        }
+
+        setAnimatedProgress(targetProgressRef.current);
+      }
+
+      setProgressStatus("Gluing document back together...");
+      targetProgressRef.current = 100;
+
+      const finalPdf = await PDFDocument.create();
+      for (const processedBytes of processedPdfBytesArray) {
+        const tempDoc = await PDFDocument.load(processedBytes);
+        const tempPages = await finalPdf.copyPages(
+          tempDoc,
+          tempDoc.getPageIndices(),
+        );
+        tempPages.forEach((page) => finalPdf.addPage(page));
+      }
+
+      const finalBytes = await finalPdf.save();
+      const finalBlob = new Blob([new Uint8Array(finalBytes)], {
+        type: "application/pdf",
       });
+      const finalUrl = URL.createObjectURL(finalBlob);
 
-      for (let i = 1; i <= numPages; i++) {
-        setProgressStatus(`Preparing Page ${i} of ${numPages}...`);
-        const page = await pdf.getPage(i);
+      const baseName = file.name.replace(/\.pdf$/i, "");
+      const link = document.createElement("a");
+      link.href = finalUrl;
+      link.download = `Searchable_${baseName}.pdf`;
+      link.click();
 
-        const viewport = page.getViewport({ scale: 2.0 });
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        if (!context) throw new Error("Canvas context failed to initialize.");
-
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        await page.render({
-          canvasContext: context,
-          viewport: viewport,
-          canvas: canvas,
-        }).promise;
-
-        const imgDataUrl = canvas.toDataURL("image/jpeg", 0.8);
-        const imgBytes = await fetch(imgDataUrl).then((res) =>
-          res.arrayBuffer(),
-        );
-
-        setProgressStatus(`Scanning Page ${i} text...`);
-
-        const result = await worker.recognize(
-          imgDataUrl,
-          { pdfTitle: `Page ${i}` },
-          { pdf: true },
-        );
-
-        setProgressStatus(`Reconstructing Page ${i}...`);
-
-        const data = result.data as unknown as TesseractPdfData;
-
-        if (data.pdf) {
-          const tesseractPdf = await PDFDocument.load(new Uint8Array(data.pdf));
-          const copiedPages = await outPdf.copyPages(tesseractPdf, [0]);
-          outPdf.addPage(copiedPages[0]);
-        } else {
-          const embeddedImage = await outPdf.embedJpg(imgBytes);
-          const newPage = outPdf.addPage([canvas.width, canvas.height]);
-          newPage.drawImage(embeddedImage, {
-            x: 0,
-            y: 0,
-            width: canvas.width,
-            height: canvas.height,
-          });
-        }
-
-        // TRIGGER PACKAGING LOGIC
-        if (i % CHUNK_SIZE === 0 || i === numPages) {
-          setProgressStatus(`Packaging Pages ${chunkStartPage}-${i}...`);
-
-          const pdfBytes = await outPdf.save();
-          const blob = new Blob([new Uint8Array(pdfBytes)], {
-            type: "application/pdf",
-          });
-          const url = URL.createObjectURL(blob);
-          const baseName = file.name.replace(/\.pdf$/i, "");
-
-          // FIX: Branch the logic based on total document size!
-          if (numPages <= CHUNK_SIZE) {
-            // SMALL FILE FLOW: Just auto-download at the end. No previews needed.
-            if (i === numPages) {
-              const link = document.createElement("a");
-              link.href = url;
-              link.download = `Searchable_${baseName}.pdf`;
-              link.click();
-            }
-          } else {
-            // LARGE FILE FLOW: Use the Milestones Preview system
-            const chunkTitle = `Pages_${chunkStartPage}-${i}`;
-            setPreviews((prev) => [...prev, { title: chunkTitle, url }]);
-
-            if (i === numPages) {
-              const link = document.createElement("a");
-              link.href = url;
-              link.download = `Searchable_${baseName}_(Part_${chunkStartPage}-${i}).pdf`;
-              link.click();
-            } else {
-              outPdf = await PDFDocument.create();
-              chunkStartPage = i + 1;
-            }
-          }
-        }
-      }
+      setAnimatedProgress(100);
     } catch (error) {
-      console.error("[OCR Engine Error]:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      alert(`OCR Engine failed: ${errorMessage}`);
+      console.error("[OCR API Error]:", error);
+      alert(`Error: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
-      if (worker) {
-        await worker.terminate();
-      }
       setIsProcessing(false);
       setProgressStatus("");
     }
@@ -189,15 +204,19 @@ export default function OCRPdfClient() {
       description={t.ocrPdf.description}
       navToggle={<ConvertNav active="ocr-pdf" />}
     >
-      <div className="max-w-xl mx-auto p-10 border-4 border-double border-[#355872]/20 rounded-[3rem] bg-white shadow-xl shadow-[#355872]/5 mt-8">
+      <div className="max-w-xl mx-auto p-10 border-4 border-double border-[#355872]/20 rounded-[3rem] bg-white shadow-xl shadow-[#355872]/5 mt-8 text-[#355872]">
         {!file ? (
           <OcrPdfUpload onFileChange={handleFileChange} />
         ) : (
           <OcrPdfWorkspace
             fileName={file.name}
             isProcessing={isProcessing}
-            progressStatus={progressStatus}
-            previews={previews} // Will be empty if file <= 20 pages!
+            progressStatus={
+              isProcessing
+                ? `${progressStatus} (${animatedProgress}%)`
+                : progressStatus
+            }
+            previews={previews}
             onClear={handleClear}
             onProcess={handleOCR}
           />

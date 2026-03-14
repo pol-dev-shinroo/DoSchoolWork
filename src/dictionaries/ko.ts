@@ -7,6 +7,8 @@ export const ko: Dictionary = {
   common: {
     backToToolbox: "툴박스로 돌아가기",
     soon: "준비중",
+    processingWarning:
+      "현재 파일 처리가 완료될 때까지 페이지를 이동하지 마세요.",
   },
   header: {
     freeNoLogin: "무료, 로그인 없음",
@@ -39,8 +41,8 @@ export const ko: Dictionary = {
       "여러 파일을 하나의 매끄러운 문서로 합치세요. 개별 과제 페이지를 하나로 묶기에 완벽합니다.",
   },
   pdfCrop: {
-    title: "PDF 자르기.",
-    description: "과제에서 특정 페이지를 추출하거나 여백을 즉시 잘라내세요.",
+    title: "PDF 나누기.",
+    description: "pdf를 특정 페이지들로 나누거나, 여백을 잘라내세요.",
   },
 
   // ==========================================
@@ -73,6 +75,8 @@ export const ko: Dictionary = {
     title: "OCR PDF 스캔.",
     description:
       "스캔된 문서를 검색 가능하게 만듭니다. 텍스트를 인식하여 강조, 복사 및 검색이 가능해집니다.",
+    pageLimitConfirm:
+      "이 파일은 {{count}}페이지입니다. 빠르고 안정적인 처리를 위해 한 번에 최대 50페이지만 지원합니다.\n\nPDF 나누기 도구를 사용하여 문서를 분할하시겠습니까?",
   },
   imageToPdf: {
     title: "이미지 PDF 변환.",

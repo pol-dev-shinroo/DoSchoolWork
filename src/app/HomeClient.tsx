@@ -41,7 +41,7 @@ export default function HomeClient() {
       description: t.epubToPdf.description,
     },
     {
-      href: `/${locale}/pdf/crop`,
+      href: `/${locale}/pdf/split`, // <-- UPDATED URL HERE
       icon: Scissors,
       title: t.pdfCrop.title,
       description: t.pdfCrop.description,

@@ -11,7 +11,7 @@ export default function Icon() {
   return new ImageResponse(
     <div
       style={{
-        background: "#FFFFFF",
+        background: "transparent", // <--- THE FIX: No more white box!
         width: "100%",
         height: "100%",
         display: "flex",

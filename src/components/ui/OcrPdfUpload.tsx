@@ -14,36 +14,39 @@ export default function OcrPdfUpload({ onFileChange }: OcrPdfUploadProps) {
   const i18n = {
     en: {
       title: "Upload Scanned PDF",
-      desc: "Maximum Privacy - Processed Locally",
+      desc: "Maximum Privacy - Secure Cloud Processing",
     },
     ko: {
       title: "스캔한 PDF 업로드",
-      desc: "최대 개인정보 보호 - 기기에서 로컬 처리됨",
+      desc: "최대 개인정보 보호 - 안전한 클라우드 처리",
     },
-    zh: { title: "上传扫描的 PDF", desc: "最高隐私 - 本地处理" },
+    zh: {
+      title: "上传扫描的 PDF",
+      desc: "最高隐私 - 安全的云端处理",
+    },
     de: {
       title: "Gescannte PDF hochladen",
-      desc: "Maximaler Datenschutz - Lokal verarbeitet",
+      desc: "Maximaler Datenschutz - Sichere Cloud-Verarbeitung",
     },
     ru: {
       title: "Загрузить отсканированный PDF",
-      desc: "Максимальная конфиденциальность - Обработка локально",
+      desc: "Максимальная конфиденциальность - Безопасная облачная обработка",
     },
     el: {
       title: "Ανεβάστε Σαρωμένο PDF",
-      desc: "Μέγιστο Απόρρητο - Τοπική Επεξεργασία",
+      desc: "Μέγιστο Απόρρητο - Ασφαλής Επεξεργασία στο Cloud",
     },
     km: {
       title: "ផ្ទុកឡើង PDF ដែលបានស្កេន",
-      desc: "ឯកជនភាពអតិបរមា - ដំណើរការក្នុងម៉ាស៊ីន",
+      desc: "ឯកជនភាពអតិបរមា - ដំណើរការលើ Cloud ប្រកបដោយសុវត្ថិភាព",
     },
     id: {
       title: "Unggah PDF Hasil Scan",
-      desc: "Privasi Maksimal - Diproses Lokal",
+      desc: "Privasi Maksimal - Pemrosesan Cloud Aman",
     },
   };
 
-  const text = i18n[locale] || i18n.en;
+  const text = i18n[locale as keyof typeof i18n] || i18n.en;
 
   return (
     <div className="group text-center py-12 relative">
