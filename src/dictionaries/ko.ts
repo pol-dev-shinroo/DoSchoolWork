@@ -27,7 +27,7 @@ export const ko: Dictionary = {
     heroTitle: "HisPDF.",
     featureFree: "무료",
     featureNoLogin: "가입 및 구독 없음",
-    featureLocal: "개인정보 보호. 서버 업로드 제로.",
+    featureLocal: "프라이버시 보장. 데이터가 저장되지 않습니다.",
     comingSoonTitle: "더 많은 도구 준비중",
     comingSoonDesc: "압축, 보호, 편집",
   },
@@ -43,6 +43,15 @@ export const ko: Dictionary = {
   pdfCrop: {
     title: "PDF 나누기.",
     description: "pdf를 특정 페이지들로 나누거나, 여백을 잘라내세요.",
+    errors: {
+      invalidFileType:
+        "잘못된 파일 형식입니다. 유효한 PDF 문서를 업로드해주세요.",
+      loadError:
+        "PDF를 불러오는 중 오류가 발생했습니다. 파일이 손상되었거나 암호로 보호되어 있을 수 있습니다.",
+      startGreaterThanEnd: "시작 페이지가 끝 페이지보다 클 수 없습니다.",
+      processError:
+        "문제가 발생했습니다! 파일이 암호로 보호되어 있지 않은지 확인해주세요.",
+    },
   },
 
   // ==========================================

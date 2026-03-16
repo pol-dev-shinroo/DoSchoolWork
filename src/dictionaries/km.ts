@@ -20,7 +20,7 @@ export const km: Dictionary = {
     heroTitle: "HisPDF",
     featureFree: "ឥតគិតថ្លៃ",
     featureNoLogin: "គ្មានការចុះឈ្មោះ",
-    featureLocal: "ឯកជនភាពអតិបរមា។ ដំណើរការក្នុងម៉ាស៊ីន។",
+    featureLocal: "ធានាឯកជនភាព។ គ្មានទិន្នន័យត្រូវបានរក្សាទុកទេ។",
     comingSoonTitle: "ឧបករណ៍បន្ថែមឆាប់ៗនេះ",
     comingSoonDesc: "បង្រួម ការពារ កែសម្រួល",
   },
@@ -33,6 +33,15 @@ export const km: Dictionary = {
     title: "បំបែក PDF",
     description:
       "បំបែកទំព័រ PDF លុបរឹម និងទាញយកផ្នែកជាក់លាក់ពីឯកសារ PDF របស់អ្នក។",
+    errors: {
+      invalidFileType:
+        "ប្រភេទឯកសារមិនត្រឹមត្រូវ។ សូមបញ្ជូនឯកសារ PDF ដែលត្រឹមត្រូវ។",
+      loadError:
+        "មានកំហុសក្នុងការផ្ទុក PDF។ ឯកសារអាចនឹងខូច ឬមានការការពារដោយពាក្យសម្ងាត់។",
+      startGreaterThanEnd: "ទំព័រចាប់ផ្តើមមិនអាចធំជាងទំព័របញ្ចប់ទេ។",
+      processError:
+        "មានបញ្ហាខ្លះកើតឡើង! សូមប្រាកដថាឯកសារមិនមានការការពារដោយពាក្យសម្ងាត់។",
+    },
   },
   imageCrop: {
     title: "កាត់រូបភាព",

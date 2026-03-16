@@ -136,10 +136,14 @@ export default function OCRPdfClient() {
         const formData = new FormData();
         formData.append("file", chunkFile);
 
-        const response = await fetch("http://localhost:8000/ocr", {
-          method: "POST",
-          body: formData,
-        });
+        // The URL is now pointing to your live Hugging Face server!
+        const response = await fetch(
+          "https://lewigolski-hispdf-engine.hf.space/ocr",
+          {
+            method: "POST",
+            body: formData,
+          },
+        );
 
         if (!response.ok)
           throw new Error(

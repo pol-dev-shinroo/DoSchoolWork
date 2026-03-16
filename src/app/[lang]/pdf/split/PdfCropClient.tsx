@@ -18,7 +18,6 @@ export default function PdfCropClient() {
   const [pages, setPages] = useState({ start: 1, end: 1 });
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // UPDATED: Now passing the translated string from our dictionary!
   useProcessingWarning(isProcessing, t.common.processingWarning);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,7 +25,8 @@ export default function PdfCropClient() {
     if (!selectedFile) return;
 
     if (selectedFile.type !== "application/pdf") {
-      alert("Invalid file type. Please upload a valid PDF document.");
+      // TRANSLATED
+      alert(t.pdfCrop.errors.invalidFileType);
       e.target.value = "";
       return;
     }
@@ -40,9 +40,8 @@ export default function PdfCropClient() {
       setPages({ start: 1, end: count });
     } catch (err) {
       console.error("Error loading PDF info:", err);
-      alert(
-        "Error loading PDF. The file may be corrupted or password protected.",
-      );
+      // TRANSLATED
+      alert(t.pdfCrop.errors.loadError);
       setFile(null);
     }
     e.target.value = "";
@@ -72,7 +71,8 @@ export default function PdfCropClient() {
       const end = Math.min(totalPagesCount, pages.end);
 
       if (start > end) {
-        alert("Start page cannot be greater than end page.");
+        // TRANSLATED
+        alert(t.pdfCrop.errors.startGreaterThanEnd);
         setIsProcessing(false);
         return;
       }
@@ -94,9 +94,8 @@ export default function PdfCropClient() {
       link.download = `Split_${file.name}`;
       link.click();
     } catch (error) {
-      alert(
-        "Something went wrong! Make sure the file isn't password protected.",
-      );
+      // TRANSLATED
+      alert(t.pdfCrop.errors.processError);
     } finally {
       setIsProcessing(false);
     }
@@ -112,7 +111,7 @@ export default function PdfCropClient() {
     <PageShell
       title={t.pdfCrop.title}
       description={t.pdfCrop.description}
-      navToggle={<PdfNav active="split" />} // Validated: active="split" is correct here!
+      navToggle={<PdfNav active="split" />}
     >
       <div className="max-w-xl mx-auto p-10 border-4 border-double border-[#355872]/20 rounded-[3rem] bg-white shadow-xl shadow-[#355872]/5 mt-8 transition-all">
         {!file ? (

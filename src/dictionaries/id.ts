@@ -20,7 +20,7 @@ export const id: Dictionary = {
     heroTitle: "HisPDF",
     featureFree: "Gratis",
     featureNoLogin: "Tanpa Daftar atau Langganan",
-    featureLocal: "Privasi Maksimal. Diproses Lokal.",
+    featureLocal: "Privasi terjamin. Tidak ada data yang disimpan.",
     comingSoonTitle: "Alat Lainnya Segera Hadir",
     comingSoonDesc: "Kompres, Lindungi, Edit",
   },
@@ -33,6 +33,16 @@ export const id: Dictionary = {
     title: "Pisahkan PDF",
     description:
       "Pisahkan halaman PDF, hapus margin, dan ekstrak bagian tertentu dari dokumen PDF Anda.",
+    errors: {
+      invalidFileType:
+        "Jenis file tidak valid. Harap unggah dokumen PDF yang valid.",
+      loadError:
+        "Kesalahan memuat PDF. File mungkin rusak atau dilindungi kata sandi.",
+      startGreaterThanEnd:
+        "Halaman awal tidak boleh lebih besar dari halaman akhir.",
+      processError:
+        "Terjadi kesalahan! Pastikan file tidak dilindungi kata sandi.",
+    },
   },
   imageCrop: {
     title: "Potong Gambar",

@@ -25,7 +25,7 @@ export const en = {
     heroTitle: "HisPDF",
     featureFree: "Free",
     featureNoLogin: "No sign-up or subscription",
-    featureLocal: "Privacy secured. Zero server uploads.",
+    featureLocal: "Privacy secured. No data saved",
     comingSoonTitle: "More Tools Soon",
     comingSoonDesc: "Compress, Protect, Edit",
   },
@@ -42,6 +42,14 @@ export const en = {
     title: "Split PDF",
     description:
       "Split PDF pages, remove margins, and extract specific sections from your PDF documents.",
+    errors: {
+      invalidFileType: "Invalid file type. Please upload a valid PDF document.",
+      loadError:
+        "Error loading PDF. The file may be corrupted or password protected.",
+      startGreaterThanEnd: "Start page cannot be greater than end page.",
+      processError:
+        "Something went wrong! Make sure the file isn't password protected.",
+    },
   },
 
   // ==========================================

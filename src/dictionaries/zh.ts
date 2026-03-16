@@ -19,7 +19,7 @@ export const zh: Dictionary = {
     heroTitle: "HisPDF",
     featureFree: "免费",
     featureNoLogin: "无需注册或订阅",
-    featureLocal: "隐私安全。零服务器上传。",
+    featureLocal: "隐私安全。不保存任何数据。",
     comingSoonTitle: "更多工具即将推出",
     comingSoonDesc: "压缩、保护、编辑",
   },
@@ -31,6 +31,12 @@ export const zh: Dictionary = {
   pdfCrop: {
     title: "裁剪 PDF",
     description: "裁剪 PDF 页面，删除边距，并从 PDF 文档中提取特定部分。",
+    errors: {
+      invalidFileType: "文件类型无效。请上传有效的 PDF 文档。",
+      loadError: "加载 PDF 时出错。文件可能已损坏或受密码保护。",
+      startGreaterThanEnd: "起始页不能大于结束页。",
+      processError: "出现问题！请确保文件未受密码保护。",
+    },
   },
   imageCrop: {
     title: "裁剪图像",

@@ -20,7 +20,7 @@ export const de: Dictionary = {
     heroTitle: "HisPDF",
     featureFree: "Kostenlos",
     featureNoLogin: "Keine Anmeldung oder Abo",
-    featureLocal: "Datenschutz gesichert. Keine Server-Uploads.",
+    featureLocal: "Privatsphäre geschützt. Keine Daten gespeichert.",
     comingSoonTitle: "Weitere Tools bald verfügbar",
     comingSoonDesc: "Komprimieren, Schützen, Bearbeiten",
   },
@@ -33,6 +33,16 @@ export const de: Dictionary = {
     title: "PDF teilen",
     description:
       "Teilen Sie PDF-Seiten, entfernen Sie Ränder und extrahieren Sie bestimmte Abschnitte aus Ihren PDF-Dokumenten.",
+    errors: {
+      invalidFileType:
+        "Ungültiger Dateityp. Bitte laden Sie ein gültiges PDF-Dokument hoch.",
+      loadError:
+        "Fehler beim Laden der PDF. Die Datei ist möglicherweise beschädigt oder passwortgeschützt.",
+      startGreaterThanEnd:
+        "Die Startseite darf nicht größer als die Endseite sein.",
+      processError:
+        "Etwas ist schiefgelaufen! Stellen Sie sicher, dass die Datei nicht passwortgeschützt ist.",
+    },
   },
   imageCrop: {
     title: "Bild zuschneiden",
