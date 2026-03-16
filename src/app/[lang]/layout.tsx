@@ -7,6 +7,8 @@ import { seoDictionary, Locale } from "@/dictionaries/seo";
 
 // 1. IMPORT YOUR NEW CHAT COMPONENT HERE
 import FeedbackChat from "@/components/ui/FeedbackChat";
+// NEW: IMPORT THE WARMUP COMPONENT
+import ServerWarmup from "@/components/ui/ServerWarmup";
 
 // NEXT.JS 16 FIX: Await the params for Global SEO
 export async function generateMetadata({
@@ -54,6 +56,9 @@ export default async function RootLayout({
     <html lang={currentLang}>
       <body className="bg-[#F7F8F0]/30 text-slate-900 font-sans antialiased">
         <LanguageProvider>
+          {/* NEW: ADD THE INVISIBLE WARMUP PINGER HERE */}
+          <ServerWarmup />
+
           <Header />
           <Sidebar />
           <main className="min-h-screen pt-28 pb-20 px-4 md:pl-24 transition-all duration-300">
