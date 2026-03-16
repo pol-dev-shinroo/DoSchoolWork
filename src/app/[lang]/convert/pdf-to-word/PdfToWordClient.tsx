@@ -814,7 +814,7 @@ export default function PdfToWordClient() {
   // ==========================================
   // TAB CLOSE PROTECTION
   // ==========================================
-  useProcessingWarning(isProcessing);
+  useProcessingWarning(isProcessing, t.common.processingWarning);
 
   // ==========================================
   // WRONG FILE ALERT

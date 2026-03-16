@@ -20,7 +20,7 @@ export default function EpubToPdfClient() {
   // ==========================================
   // TAB CLOSE PROTECTION (Now just 1 line!)
   // ==========================================
-  useProcessingWarning(isProcessing);
+  useProcessingWarning(isProcessing, t.common.processingWarning);
 
   // ==========================================
   // WRONG FILE ALERT

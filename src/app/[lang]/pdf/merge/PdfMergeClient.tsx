@@ -24,7 +24,7 @@ export default function PdfMergeClient() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Tab Close Protection Hook
-  useProcessingWarning(isProcessing);
+  useProcessingWarning(isProcessing, t.common.processingWarning);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);

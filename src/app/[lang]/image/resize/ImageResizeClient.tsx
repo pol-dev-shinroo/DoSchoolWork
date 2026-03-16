@@ -31,7 +31,7 @@ export default function ImageResizeClient() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Tab Close Protection Hook
-  useProcessingWarning(isProcessing);
+  useProcessingWarning(isProcessing, t.common.processingWarning);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
